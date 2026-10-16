@@ -160,4 +160,4 @@ The project is being stabilized before its first production release. Bug reports
 
 ## License
 
-No license has been specified yet. Until a license is added to the repository, permission to reuse, modify, or distribute this project should not be assumed.
+This project is licensed under the [MIT License](LICENSE). You may use, modify, and distribute the software under its terms, including retaining the copyright and license notices.

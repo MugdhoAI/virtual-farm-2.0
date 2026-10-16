@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+**/.pytest_cache/
+.env
+.env.*
+!.env.example
+.vscode/
+.vercel/
+backend/instance/*.sqlite3
+backend/instance/*.sqlite3-journal
+backend/instance/*.sqlite3-shm
+backend/instance/*.sqlite3-wal

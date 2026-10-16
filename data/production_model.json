@@ -1,0 +1,268 @@
+{
+  "model_version": "boro-six-decision-v1",
+  "data_version": "boro-production-data-unconfigured-v1",
+  "documented_rules": {
+    "weather_scenario_probabilities": {
+      "ideal": 0.4,
+      "mild_stress": 0.35,
+      "severe_event": 0.25,
+      "source_document": "docs/methodology.md#data-integrity-and-documented-rules",
+      "status": "project-specified; BWDB source, year, and geographic scope are not provided; not loaded as production data"
+    }
+  },
+  "records": {
+    "yield.base_tonnes_per_bigha": {
+      "value": null,
+      "unit": "tonnes of paddy/bigha",
+      "required_source_institution": "BBS",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "seed.local.cost_bdt_per_bigha": {
+      "value": null,
+      "unit": "BDT/bigha",
+      "required_source_institution": "DAE",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "seed.local.yield_multiplier": {
+      "value": null,
+      "unit": "ratio",
+      "required_source_institution": "BBS/BRRI",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "seed.brri_certified.cost_bdt_per_bigha": {
+      "value": null,
+      "unit": "BDT/bigha",
+      "required_source_institution": "DAE",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "seed.brri_certified.yield_multiplier": {
+      "value": null,
+      "unit": "ratio",
+      "required_source_institution": "BBS/BRRI",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "fertilizer.organic.cost_bdt_per_bigha": {
+      "value": null,
+      "unit": "BDT/bigha",
+      "required_source_institution": "DAE",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "fertilizer.organic.yield_multiplier": {
+      "value": null,
+      "unit": "ratio",
+      "required_source_institution": "BBS/BRRI",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "fertilizer.chemical.cost_bdt_per_bigha": {
+      "value": null,
+      "unit": "BDT/bigha",
+      "required_source_institution": "DAE",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "fertilizer.chemical.yield_multiplier": {
+      "value": null,
+      "unit": "ratio",
+      "required_source_institution": "BBS/BRRI",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "labor.seasonal_workers.cost_bdt_per_bigha": {
+      "value": null,
+      "unit": "BDT/bigha",
+      "required_source_institution": "DAE",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "labor.power_tiller.cost_bdt_per_bigha": {
+      "value": null,
+      "unit": "BDT/bigha",
+      "required_source_institution": "DAE",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "irrigation.rainfed.cost_bdt_per_bigha": {
+      "value": null,
+      "unit": "BDT/bigha",
+      "required_source_institution": "DAE",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "irrigation.pump.cost_bdt_per_bigha": {
+      "value": null,
+      "unit": "BDT/bigha",
+      "required_source_institution": "DAE",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "weather.ideal.probability": {
+      "value": null,
+      "unit": "probability",
+      "required_source_institution": "BWDB",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "weather.ideal.yield_multiplier": {
+      "value": null,
+      "unit": "ratio",
+      "required_source_institution": "BWDB/BBS",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "weather.mild_stress.probability": {
+      "value": null,
+      "unit": "probability",
+      "required_source_institution": "BWDB",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "weather.mild_stress.yield_multiplier": {
+      "value": null,
+      "unit": "ratio",
+      "required_source_institution": "BWDB/BBS",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "weather.severe_event.probability": {
+      "value": null,
+      "unit": "probability",
+      "required_source_institution": "BWDB",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "weather.severe_event.yield_multiplier": {
+      "value": null,
+      "unit": "ratio",
+      "required_source_institution": "BWDB/BBS",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "market.base_price_bdt_per_40kg": {
+      "value": null,
+      "unit": "BDT/40kg paddy",
+      "required_source_institution": "FPMU",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "market.store.price_multiplier": {
+      "value": null,
+      "unit": "ratio",
+      "required_source_institution": "FPMU",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "market.store.spoilage_probability": {
+      "value": null,
+      "unit": "probability",
+      "required_source_institution": "DAE/Farmer interviews",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    },
+    "market.store.spoilage_fraction": {
+      "value": null,
+      "unit": "fraction of harvest lost",
+      "required_source_institution": "DAE/Farmer interviews",
+      "source_institution": null,
+      "source_document": null,
+      "source_year": null,
+      "geographic_scope": null,
+      "methodology": null,
+      "provenance": null
+    }
+  }
+}

@@ -1,0 +1,2543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Farm — Boro Rice Simulator Concept</title>
+<meta name="description" content="Explore the Virtual Farm concept for a Bangladesh-focused Boro rice decision simulator. Production data is not yet verified.">
+<meta property="og:title" content="Virtual Farm — Boro Rice Simulator Concept">
+<meta property="og:description" content="Explore a concept for practicing Boro rice farming decisions. The production model is not yet available.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   VIRTUAL FARM · PRODUCTION VISUAL SYSTEM
+   First-principles rebuild — conversion-optimised
+   ═══════════════════════════════════════════════════════ */
+:root{
+  /* ── surfaces */
+  --bg:#0a0a06;--bg2:#0e0e08;--bg3:#070704;
+  --card:#141410;--card2:#181814;--overlay:#1a1a0e;
+  /* ── borders */
+  --b0:#131310;--b1:#1e1e16;--b2:#2a2a1a;--b3:#3a3a28;
+  /* ── gold system */
+  --gold:#B8860B;--gold2:#D4A017;--gold3:#7a5c06;
+  --g4:rgba(184,134,11,.04);--g6:rgba(184,134,11,.06);
+  --g8:rgba(184,134,11,.08);--g12:rgba(184,134,11,.12);
+  --g20:rgba(184,134,11,.20);--g35:rgba(184,134,11,.35);
+  /* ── text */
+  --t1:#F0EDE4;--t2:#C8C4B4;--t3:#A0A080;--t4:#6a6650;--t5:#3d3d2e;
+  /* ── state */
+  --ok:#5aab65;--ok2:#2E7D32;--okb:rgba(90,171,101,.08);--okr:rgba(90,171,101,.25);
+  --er:#e06060;--er2:#C62828;--erb:rgba(198,40,40,.08);--err:rgba(198,40,40,.20);
+  /* ── type */
+  --fd:"Playfair Display",Georgia,serif;
+  --fs:"DM Sans",system-ui,sans-serif;
+  --fm:"DM Mono",monospace;
+  /* ── shadows */
+  --s1:0 1px 3px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.025);
+  --s2:0 4px 20px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04);
+  --s3:0 8px 32px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05);
+  --ss:0 28px 72px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06);
+  --sg:0 1px 2px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.14),0 0 20px rgba(184,134,11,.22);
+  --sgh:0 2px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18),0 0 32px rgba(184,134,11,.36);
+  /* ── motion */
+  --e:cubic-bezier(.16,1,.3,1);
+  --t:150ms cubic-bezier(.16,1,.3,1);
+  --ts:240ms cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--t1);
+  font-family:var(--fs);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden
+}
+::selection{background:var(--g20);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit;background:none;border:none}
+ul,ol{list-style:none}
+img,svg{display:block;max-width:100%}
+[id]{scroll-margin-top:68px}
+
+/* ── noise ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.025
+}
+
+/* ── scrollbar ── */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ── skip link ── */
+.skip{position:fixed;top:-100%;left:16px;z-index:9998;padding:8px 16px;
+  background:var(--gold);color:#000;font-size:13px;font-weight:600;
+  border-radius:0 0 6px 6px;transition:top .2s ease}
+.skip:focus{top:0}
+
+/* ═══════════════ LAYOUT ═══════════════ */
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+@media(min-width:640px){.wrap{padding:0 28px}}
+@media(min-width:1024px){.wrap{padding:0 64px}}
+@media(min-width:1280px){.wrap{padding:0 80px}}
+
+.section{padding:80px 0}
+@media(min-width:640px){.section{padding:100px 0}}
+@media(min-width:1024px){.section{padding:128px 0}}
+
+/* ── spacing scale (4px base unit) ── */
+:root{
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;
+  --sp-6:32px;--sp-7:48px;--sp-8:64px;--sp-9:96px;--sp-10:128px;--sp-11:160px;
+}
+
+/* ── 12-col grid utility (reusable; section grids below define their own when a fixed N-up pattern is clearer) ── */
+.grid-12{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--sp-5)}
+.col-3{grid-column:span 3}
+.col-4{grid-column:span 4}
+.col-6{grid-column:span 6}
+.col-8{grid-column:span 8}
+.col-12{grid-column:span 12}
+@media(max-width:1023px){.grid-12{grid-template-columns:repeat(6,1fr)}
+  .col-3,.col-4{grid-column:span 3}.col-6,.col-8{grid-column:span 6}}
+@media(max-width:639px){.grid-12{grid-template-columns:1fr;gap:var(--sp-4)}
+  .col-3,.col-4,.col-6,.col-8,.col-12{grid-column:span 1}}
+
+/* ═══════════════ TYPE ═══════════════ */
+.label{
+  font-family:var(--fm);font-size:11px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gold)
+}
+.h2{
+  font-family:var(--fd);font-weight:700;color:var(--t1);
+  font-size:clamp(28px,3.2vw,40px);line-height:1.1;letter-spacing:-.03em
+}
+.body{font-family:var(--fs);font-weight:300;font-size:15px;line-height:1.78;color:var(--t2)}
+
+/* ═══════════════ BUTTONS ═══════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--fs);font-weight:600;font-size:14px;line-height:1.25;
+  letter-spacing:.025em;border-radius:6px;cursor:pointer;
+  border:none;text-align:center;-webkit-tap-highlight-color:transparent;
+  transition:background var(--t),transform var(--t),box-shadow var(--t)
+}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* ── global focus fallback: any link/button not using .btn still gets a visible ring ── */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible{
+  outline:2px solid var(--gold);outline-offset:3px;border-radius:3px
+}
+main[tabindex="-1"]:focus-visible,
+section[tabindex="-1"]:focus-visible{outline:none}
+.modal-close:focus-visible{outline-offset:2px}
+
+.btn-gold{
+  min-height:52px;padding:13px 28px;
+  background:var(--gold);color:#000;box-shadow:var(--sg)
+}
+.btn-gold:hover{background:var(--gold2);transform:scale(1.015);box-shadow:var(--sgh)}
+.btn-gold:active{background:#A87A0A;transform:scale(.985)}
+
+.btn-gold-sm{min-height:44px;padding:10px 18px;font-size:13px;
+  background:var(--gold);color:#000;box-shadow:var(--sg)}
+.btn-gold-sm:hover{background:var(--gold2)}
+.btn-gold-sm:active{background:#A87A0A;transform:scale(.97)}
+
+.btn-outline{
+  min-height:48px;padding:11px 24px;
+  background:transparent;color:var(--gold);
+  border:1px solid rgba(184,134,11,.45)
+}
+.btn-outline:hover{background:var(--g8);border-color:var(--gold)}
+.btn-outline:active{background:var(--g12);transform:scale(.985)}
+
+.btn-full{width:100%}
+
+/* ═══════════════ CARDS ═══════════════ */
+.card{
+  background:var(--card);border:1px solid var(--b2);
+  border-radius:8px;box-shadow:var(--s1);
+  transition:transform var(--ts),box-shadow var(--ts)
+}
+.card:hover{transform:translateY(-2px);box-shadow:var(--s3)}
+
+.card-gold{
+  background:var(--card);border-radius:8px;box-shadow:var(--s1);
+  border-top:1px solid var(--b2);border-right:1px solid var(--b2);
+  border-bottom:1px solid var(--b2);border-left:3px solid var(--gold);
+  transition:transform var(--ts),box-shadow var(--ts)
+}
+.card-gold:hover{transform:translateY(-2px);box-shadow:var(--s3)}
+
+/* ═══════════════ NAV ═══════════════ */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  height:60px;display:flex;align-items:center;
+  border-bottom:1px solid transparent;
+  transition:background var(--ts),border-color var(--ts),backdrop-filter var(--ts)
+}
+#nav.solid{
+  background:rgba(10,10,6,.92);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-color:var(--b1)
+}
+#nav .wrap{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding-top:0;padding-bottom:0
+}
+.nav-logo{
+  font-family:var(--fd);font-size:18px;font-weight:700;
+  color:var(--gold);letter-spacing:-.01em;
+  transition:opacity .15s
+}
+.nav-logo:hover{opacity:.8}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-link{
+  display:none;font-family:var(--fs);font-size:13px;
+  color:var(--t3);transition:color .15s
+}
+.nav-link:hover{color:var(--t1)}
+@media(min-width:640px){.nav-link{display:block}}
+
+/* ═══════════════ HERO ═══════════════ */
+#hero{
+  position:relative;min-height:100dvh;padding-top:60px;
+  background:var(--bg);display:flex;align-items:center;overflow:hidden
+}
+#hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 55% at 68% 48%,rgba(184,134,11,.055) 0%,transparent 68%)
+}
+.hero-grid{
+  position:relative;z-index:1;
+  width:100%;padding:60px 0 56px;
+  display:flex;flex-direction:column;gap:48px
+}
+@media(min-width:1024px){
+  .hero-grid{
+    display:grid;grid-template-columns:minmax(0,52fr) minmax(0,48fr);
+    gap:48px;align-items:center;
+    padding:72px 0
+  }
+  .hero-copy{min-width:0}
+  .hero-ss-col{min-width:0;justify-content:center}
+  .ss-frame{max-width:320px}
+}
+@media(min-width:1180px){
+  .hero-grid{gap:64px;padding:80px 0}
+  .hero-ss-col{justify-content:flex-end}
+  .ss-frame{max-width:358px}
+}
+
+.hero-copy{display:flex;flex-direction:column}
+
+.hero-eyebrow{
+  font-family:var(--fm);font-size:11px;font-weight:500;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:22px
+}
+
+.hero-h1{
+  font-family:var(--fd);font-weight:900;color:var(--t1);
+  font-size:clamp(38px,5.8vw,66px);line-height:.96;
+  letter-spacing:-.04em;margin-bottom:26px;max-width:560px
+}
+
+.hero-sub{
+  font-family:var(--fs);font-weight:300;
+  font-size:clamp(15px,1.25vw,17px);line-height:1.68;
+  color:var(--t2);max-width:480px;margin-bottom:28px
+}
+
+.hero-proof{
+  display:flex;align-items:center;gap:9px;margin-bottom:28px
+}
+.proof-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--ok);flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(90,171,101,.4);
+  animation:pulseOk 2.5s ease-in-out infinite
+}
+@keyframes pulseOk{0%,100%{box-shadow:0 0 0 0 rgba(90,171,101,.4)}
+  60%{box-shadow:0 0 0 5px rgba(90,171,101,0)}}
+.proof-text{font-family:var(--fs);font-size:13px;color:var(--t3)}
+
+.hero-cta{display:flex;flex-direction:column;gap:11px}
+.hero-meta{
+  font-family:var(--fs);font-size:12px;color:var(--t5);
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center
+}
+.hero-meta .sep{color:var(--b2)}
+
+.trust-row{
+  margin-top:36px;padding-top:24px;border-top:1px solid var(--b0);
+  position:relative;overflow:hidden
+}
+.trust-row::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;
+  width:56px;background:linear-gradient(to right,transparent,var(--bg));
+  pointer-events:none
+}
+.trust-scroll{
+  display:flex;align-items:center;gap:0;
+  overflow-x:auto;white-space:nowrap;
+  scrollbar-width:none;-ms-overflow-style:none
+}
+.trust-scroll::-webkit-scrollbar{display:none}
+.trust-pre{
+  font-family:var(--fm);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--t5);margin-right:14px;flex-shrink:0
+}
+.trust-chip{font-family:var(--fm);font-size:11px;font-weight:500;color:var(--t4)}
+.trust-sep{color:var(--b2);margin:0 9px}
+
+/* hero screenshot col */
+.hero-ss-col{
+  display:none;justify-content:flex-end;align-items:center;position:relative
+}
+@media(min-width:1024px){.hero-ss-col{display:flex}}
+
+.hero-ss-aura{
+  position:absolute;inset:-20% -30%;
+  background:radial-gradient(ellipse 65% 55% at 55% 50%,rgba(184,134,11,.08) 0%,transparent 65%);
+  pointer-events:none
+}
+.ss-frame{
+  position:relative;z-index:1;
+  width:100%;max-width:358px;
+  aspect-ratio:390/780;
+  border-radius:14px;overflow:hidden;
+  background:linear-gradient(160deg,#1a1a12 0%,#0c0c08 100%);
+  border:1px solid var(--b2);box-shadow:var(--ss);
+  transform:perspective(1100px) rotateY(-5deg) rotateX(1.5deg) rotateZ(-.5deg);
+  transition:transform .55s var(--e)
+}
+.hero-preview-label{
+  position:absolute;top:9px;left:9px;z-index:2;
+  padding:3px 7px;border:1px solid var(--b2);border-radius:3px;
+  background:rgba(10,10,6,.94);color:var(--gold2);
+  font-family:var(--fm);font-size:8px;letter-spacing:.08em;
+  line-height:1.4;text-transform:uppercase
+}
+.hero-ss-col:hover .ss-frame{
+  transform:perspective(1100px) rotateY(-1.5deg) rotateX(.3deg) rotateZ(0deg)
+}
+
+/* ═══════════════ SCREEN: DASHBOARD ═══════════════ */
+.screen{
+  width:100%;height:100%;background:var(--bg);
+  display:flex;flex-direction:column;font-size:11px;color:var(--t2)
+}
+.sc-status{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 16px 4px;min-height:22px
+}
+.sc-status-time{font-family:var(--fs);font-size:10px;font-weight:700;color:var(--t1)}
+.sc-status-icons{display:flex;align-items:center;gap:3px}
+.sc-status-bar{
+  display:flex;align-items:flex-end;gap:1px;height:8px
+}
+.sc-status-bar span{
+  background:var(--t3);border-radius:1px;width:2px
+}
+.sc-battery{
+  width:15px;height:8px;border:1px solid var(--t3);border-radius:2px;margin-left:3px;
+  display:flex;align-items:center;padding:1px
+}
+.sc-battery-fill{height:100%;background:var(--t3);border-radius:1px;width:72%}
+
+.sc-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 14px 9px;border-bottom:1px solid var(--b1)
+}
+.sc-logo{
+  width:22px;height:22px;border-radius:5px;
+  background:var(--card2);border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fd);font-size:7px;font-weight:700;color:var(--gold)
+}
+.sc-season-chip{
+  background:var(--card);border:1px solid var(--b2);border-radius:100px;
+  padding:2px 10px;font-family:var(--fm);font-size:7px;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--t4)
+}
+.sc-dots{display:flex;gap:2px}
+.sc-dots span{width:3px;height:3px;border-radius:50%;background:var(--t4)}
+
+.sc-head{padding:10px 14px 8px}
+.sc-crop-tag{
+  display:inline-flex;padding:2px 8px;border-radius:100px;
+  background:var(--g8);border:1px solid rgba(184,134,11,.22);
+  font-family:var(--fm);font-size:7px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--gold);margin-bottom:4px
+}
+.sc-day{font-family:var(--fs);font-size:8px;color:var(--t4)}
+
+.sc-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+  padding:0 11px 8px
+}
+.sc-stat{
+  background:var(--card);border:1px solid var(--b2);
+  border-radius:6px;padding:9px 7px;text-align:center
+}
+.sc-stat-label{
+  font-family:var(--fm);font-size:6px;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--t4);display:block;margin-bottom:4px
+}
+.sc-stat-val{
+  font-family:var(--fd);font-size:13px;font-weight:700;
+  line-height:1;display:block
+}
+.sc-stat-sub{
+  font-family:var(--fs);font-size:6px;color:var(--t4);
+  display:block;margin-top:2px
+}
+
+.sc-prog{padding:0 14px 8px}
+.sc-prog-row{
+  display:flex;justify-content:space-between;
+  margin-bottom:4px
+}
+.sc-prog-row span{
+  font-family:var(--fm);font-size:6px;
+  text-transform:uppercase;letter-spacing:.07em;color:var(--t4)
+}
+.sc-track{height:3px;border-radius:100px;background:var(--b2);overflow:hidden}
+.sc-fill{
+  height:100%;border-radius:100px;
+  background:linear-gradient(to right,var(--gold),var(--gold3))
+}
+
+.sc-decisions{flex:1;padding:0 11px;overflow:hidden}
+.sc-dec-head{
+  font-family:var(--fm);font-size:6px;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--t4);margin-bottom:5px;padding-left:2px
+}
+.sc-dec-list{display:flex;flex-direction:column;gap:0}
+.sc-dec{
+  display:flex;align-items:center;gap:7px;
+  padding:4px 6px;border-bottom:1px solid var(--b0);
+  font-family:var(--fs);font-size:8px
+}
+.sc-dec-icon{
+  width:13px;height:13px;border-radius:50%;flex-shrink:0;
+  border:1px solid var(--b2);background:var(--card)
+}
+.sc-dec[data-s="done"] .sc-dec-icon{
+  background:rgba(90,171,101,.12);border-color:var(--ok);
+  display:flex;align-items:center;justify-content:center
+}
+.sc-dec[data-s="done"] .sc-dec-icon::after{
+  content:'✓';font-size:6px;color:var(--ok);font-family:var(--fs);font-weight:700
+}
+.sc-dec[data-s="now"]{
+  background:var(--g4);border-radius:4px;margin:1px 0
+}
+.sc-dec[data-s="now"] .sc-dec-icon{
+  background:var(--g12);border-color:rgba(184,134,11,.5)
+}
+.sc-dec[data-s="now"] .sc-dec-icon::after{
+  content:'→';font-size:7px;color:var(--gold);font-family:var(--fs)
+}
+.sc-dec-name{flex:1;color:var(--t3)}
+.sc-dec[data-s="done"] .sc-dec-name{color:var(--t4)}
+.sc-dec[data-s="now"] .sc-dec-name{font-weight:600;color:var(--t1)}
+.sc-dec[data-s="pend"] .sc-dec-name{color:var(--t5)}
+.sc-dec-badge{
+  font-family:var(--fm);font-size:6px;
+  padding:1px 5px;border-radius:100px
+}
+.sc-dec[data-s="done"] .sc-dec-badge{color:var(--ok)}
+.sc-dec[data-s="now"] .sc-dec-badge{
+  color:var(--gold);background:var(--g12)
+}
+.sc-dec[data-s="pend"] .sc-dec-badge{display:none}
+
+.sc-btn{
+  margin:10px 11px 12px;height:34px;background:var(--gold);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--fs);font-size:9px;font-weight:700;
+  letter-spacing:.06em;color:#000;flex-shrink:0;
+  box-shadow:0 0 16px rgba(184,134,11,.25)
+}
+
+/* ═══════════════ SECTIONS ═══════════════ */
+.sec-reality{background:var(--bg2)}
+.sec-product{background:var(--bg)}
+.sec-process{background:var(--bg2)}
+.sec-simulator{background:var(--bg)}
+.sec-data{background:var(--bg2)}
+.sec-audiences{background:var(--bg)}
+.sec-institutions{background:var(--bg3)}
+.sec-final{background:var(--bg);position:relative;overflow:hidden}
+
+/* ── section header pattern ── */
+.sec-hd{margin-bottom:56px}
+.sec-hd .label{display:block;margin-bottom:18px}
+.sec-hd .h2{margin-bottom:0}
+.sec-hd p{
+  font-family:var(--fs);font-weight:300;font-size:15px;
+  line-height:1.75;color:var(--t2);max-width:580px;margin-top:16px
+}
+@media(min-width:1024px){.sec-hd{margin-bottom:72px}}
+
+/* ═══════════════ REALITY ═══════════════ */
+.reality-body{max-width:640px}
+.reality-compare{
+  border-left:2px solid var(--b1);padding-left:18px;
+  margin:28px 0;display:flex;flex-direction:column
+}
+.reality-compare li{
+  font-family:var(--fs);font-size:15px;
+  color:var(--t3);line-height:1.72;padding:4px 0
+}
+.reality-body p{
+  font-family:var(--fs);font-weight:300;font-size:15px;
+  line-height:1.78;color:var(--t2);margin-bottom:18px
+}
+.reality-strong{font-weight:700 !important;color:var(--t1) !important}
+.reality-pullquote{
+  border-left:3px solid var(--gold);padding-left:22px;margin-top:40px
+}
+.reality-pullquote p{
+  font-family:var(--fd);font-style:italic;font-weight:400;
+  color:var(--t1);line-height:1.55;
+  font-size:clamp(17px,1.8vw,22px);margin-bottom:0 !important
+}
+
+/* ═══════════════ PRODUCT STATS ═══════════════ */
+.stat-bar{
+  border-top:1px solid var(--b2);padding-top:48px;margin-top:56px;
+  display:grid;grid-template-columns:1fr;gap:0
+}
+.stat-cell{padding:22px 0;border-bottom:1px solid var(--b2)}
+.stat-cell:last-child{border-bottom:none}
+.stat-num{
+  font-family:var(--fd);font-weight:700;color:var(--gold);
+  line-height:1;margin-bottom:8px;display:block;
+  font-size:clamp(36px,4.5vw,54px)
+}
+.stat-lbl{
+  font-family:var(--fm);font-size:11px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--t4);display:block;margin-bottom:8px
+}
+.stat-desc{font-family:var(--fs);font-size:13px;color:var(--t3);line-height:1.58;max-width:180px}
+@media(min-width:640px){
+  .stat-bar{grid-template-columns:repeat(3,1fr)}
+  .stat-cell{
+    padding:0 32px;border-bottom:none;border-right:1px solid var(--b2)
+  }
+  .stat-cell:first-child{padding-left:0}
+  .stat-cell:last-child{border-right:none;padding-right:0}
+  .stat-desc{max-width:none}
+}
+
+/* ═══════════════ PROCESS ═══════════════ */
+.process-list{
+  max-width:640px;position:relative;
+  display:flex;flex-direction:column;gap:0
+}
+.process-list::before{
+  content:'';position:absolute;left:15px;top:28px;bottom:0;
+  width:1px;background:linear-gradient(to bottom,var(--b2) 0%,transparent 100%);z-index:0
+}
+.process-step{
+  display:flex;align-items:flex-start;gap:18px;
+  padding-bottom:28px;position:relative;z-index:1
+}
+.process-step:last-child{padding-bottom:0}
+.step-num{
+  width:32px;height:32px;flex-shrink:0;border-radius:50%;
+  background:var(--card);border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:11px;font-weight:500;
+  color:var(--gold);box-shadow:var(--s1);z-index:1
+}
+.process-step:last-child .step-num{
+  border-color:rgba(184,134,11,.55);
+  box-shadow:var(--s1),0 0 12px rgba(184,134,11,.12)
+}
+.step-body{padding-top:5px}
+.step-title{
+  font-family:var(--fs);font-size:14px;font-weight:600;
+  color:var(--t1);margin-bottom:7px
+}
+.step-desc{font-family:var(--fs);font-size:14px;color:var(--t3);line-height:1.65}
+
+/* ═══════════════ SIMULATOR SCREENS ═══════════════ */
+.sim-grid{
+  display:grid;grid-template-columns:1fr;gap:40px;margin-bottom:48px
+}
+@media(min-width:640px){.sim-grid{grid-template-columns:1fr 1fr;gap:28px}}
+@media(min-width:1024px){.sim-grid{grid-template-columns:repeat(3,1fr);gap:28px}}
+@media(min-width:1280px){.sim-grid{gap:32px}}
+
+.live-simulator{
+  max-width:860px;margin:0 auto 64px;padding:24px;
+  background:var(--card);border:1px solid var(--b2);border-radius:8px;
+  box-shadow:var(--s1)
+}
+.live-simulator h3{
+  font-family:var(--fd);font-size:24px;line-height:1.2;color:var(--t1);
+  margin:6px 0 8px
+}
+.live-simulator-intro,.sim-status,.sim-result-copy{
+  color:var(--t3);font-size:14px;line-height:1.6
+}
+.sim-decision-grid{
+  display:grid;grid-template-columns:1fr;gap:16px;margin:20px 0
+}
+@media(min-width:640px){.sim-decision-grid{grid-template-columns:1fr 1fr}}
+.sim-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sim-field label{font-size:13px;font-weight:600;color:var(--t2)}
+.sim-field select{
+  width:100%;min-height:46px;padding:10px 12px;
+  color:var(--t1);background:var(--bg2);border:1px solid var(--b3);
+  border-radius:5px;font:inherit
+}
+.sim-field select:focus-visible{
+  outline:2px solid var(--gold);outline-offset:2px;border-color:var(--gold)
+}
+.sim-form-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.sim-form-actions button{min-height:46px}
+.sim-status{margin-top:14px}
+.sim-error{
+  margin-top:14px;padding:14px 16px;color:#ffd2d2;background:var(--erb);
+  border:1px solid var(--err);border-radius:5px;font-size:14px
+}
+.sim-error p+p{margin-top:6px}
+.sim-error ul{list-style:disc;margin:8px 0 0 20px;overflow-wrap:anywhere}
+.sim-result{
+  margin-top:22px;padding:18px;background:var(--bg2);
+  border:1px solid var(--b2);border-radius:6px
+}
+.sim-result[hidden],.sim-error[hidden]{display:none}
+.sim-result h4{
+  font-family:var(--fd);font-size:20px;color:var(--t1);margin-bottom:10px
+}
+.sim-result-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0
+}
+.sim-result-item{padding:12px;background:var(--card);border-radius:4px}
+.sim-result-item span{display:block;color:var(--t4);font-size:12px}
+.sim-result-item strong{display:block;color:var(--t1);font-size:15px;overflow-wrap:anywhere}
+.sim-result-diagnostic{
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--b2);
+  color:var(--t3);font-size:13px;line-height:1.7
+}
+.sim-result-diagnostic h5{font-size:13px;color:var(--gold);margin-bottom:5px}
+.sim-result-diagnostic ul{list-style:disc;margin-left:18px}
+.sim-result-actions{margin-top:16px}
+@media(max-width:420px){
+  .live-simulator{padding:18px}
+  .sim-result-grid{grid-template-columns:1fr}
+}
+
+.sim-card{}
+.phone-frame{
+  max-width:420px;margin:0 auto;width:100%;
+  border-radius:14px;overflow:hidden;
+  background:linear-gradient(160deg,#1a1a12 0%,#0c0c08 100%);
+  border:1px solid var(--b2);box-shadow:var(--ss);
+  transition:transform .32s var(--e),box-shadow .32s var(--e)
+}
+.phone-frame:hover{
+  transform:translateY(-5px);
+  box-shadow:0 36px 88px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.07)
+}
+.sim-caption{margin-top:16px;max-width:420px;margin-left:auto;margin-right:auto}
+.sim-caption-title{
+  font-family:var(--fs);font-size:14px;font-weight:600;
+  color:var(--t1);margin-bottom:4px
+}
+.sim-caption-desc{font-family:var(--fs);font-size:13px;color:var(--t4)}
+
+/* ── decision screen ── */
+.scr-decision{
+  aspect-ratio:390/660;background:var(--bg);
+  display:flex;flex-direction:column;overflow:hidden;font-size:12px
+}
+.sdec-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 17px;border-bottom:1px solid var(--b1)
+}
+.sdec-hdr-back{font-size:14px;color:var(--t4)}
+.sdec-hdr-title{
+  font-family:var(--fm);font-size:10px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--t3);font-weight:500
+}
+.sdec-hdr-prog{font-family:var(--fm);font-size:10px;color:var(--t4)}
+
+.sdec-ctx{
+  margin:11px 13px 0;background:var(--card);border:1px solid var(--b2);
+  border-radius:7px;padding:11px 13px;
+  font-family:var(--fs);font-size:12px;color:var(--t3);
+  line-height:1.58;flex-shrink:0
+}
+.sdec-opts{padding:10px 13px 0;flex:1;display:flex;flex-direction:column;gap:9px;overflow:hidden}
+
+.sdec-opt{border-radius:8px;padding:13px}
+.sdec-opt-a{background:var(--card);border:1px solid var(--b2)}
+.sdec-opt-b{
+  border-top:1px solid var(--b2);border-right:1px solid var(--b2);
+  border-bottom:1px solid var(--b2);border-left:3px solid var(--gold);
+  background:var(--g4);padding-left:10px
+}
+.sdec-opt-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:5px;padding-bottom:9px;
+  border-bottom:1px solid var(--b1);margin-bottom:0
+}
+.sdec-opt-name-a{
+  font-family:var(--fm);font-size:10px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--t3);font-weight:500
+}
+.sdec-opt-name-b{
+  font-family:var(--fm);font-size:10px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--gold);font-weight:500
+}
+.sdec-selected{
+  font-family:var(--fm);font-size:7px;color:var(--gold);
+  background:var(--g12);border-radius:100px;padding:1px 6px
+}
+.sdec-price{
+  font-family:var(--fm);font-size:9px;color:var(--t4);
+  background:var(--bg);border:1px solid var(--b2);
+  border-radius:3px;padding:1px 7px;margin-left:auto
+}
+.sdec-attrs{display:flex;flex-direction:column;gap:4px;margin-top:9px}
+.sdec-attr{
+  display:flex;align-items:flex-start;gap:5px;
+  font-family:var(--fs);font-size:11px;line-height:1.4
+}
+.sdec-pro{color:var(--t3)}.sdec-pro::before{content:'+';font-family:var(--fm);font-size:10px;font-weight:700;color:var(--ok);flex-shrink:0}
+.sdec-risk{color:var(--er)}.sdec-risk::before{content:'·';font-family:var(--fm);font-size:10px;font-weight:700;color:var(--er);flex-shrink:0}
+.sdec-neu{color:var(--t4)}.sdec-neu::before{content:'·';font-family:var(--fm);font-size:10px;color:var(--t4);flex-shrink:0}
+
+.sdec-risk-note{
+  margin:9px 13px 0;background:var(--erb);border:1px solid var(--err);
+  border-radius:6px;padding:9px 12px;flex-shrink:0
+}
+.sdec-risk-lbl{
+  font-family:var(--fm);font-size:8px;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--er);margin-bottom:3px
+}
+.sdec-risk-note p:last-child{
+  font-family:var(--fs);font-size:11px;color:var(--t3)
+}
+.sdec-confirm{
+  display:flex;align-items:center;justify-content:center;
+  margin:9px 13px 0;height:39px;background:var(--gold);color:#000;
+  border-radius:6px;font-family:var(--fs);font-size:10px;
+  font-weight:700;letter-spacing:.05em;flex-shrink:0
+}
+.sdec-note{
+  font-family:var(--fm);font-size:8px;text-align:center;
+  color:var(--t5);padding:5px 0 12px;flex-shrink:0
+}
+
+/* ── profit report screen ── */
+.scr-report{
+  aspect-ratio:390/660;background:var(--bg);
+  display:flex;flex-direction:column;overflow:hidden;font-size:12px
+}
+.srpt-hero{
+  text-align:center;padding:24px 18px 16px;
+  border-bottom:1px solid var(--b1);flex-shrink:0
+}
+.srpt-tag{
+  font-family:var(--fm);font-size:10px;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--t4);margin-bottom:7px
+}
+.srpt-result-lbl{
+  font-family:var(--fm);font-size:11px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--er);margin-bottom:5px
+}
+.srpt-result-val{
+  font-family:var(--fd);font-weight:900;color:var(--er2);
+  font-size:clamp(30px,8.5vw,42px);line-height:1
+}
+.srpt-note{font-family:var(--fs);font-size:10px;color:var(--t4);margin-top:5px;font-style:italic}
+
+.srpt-table{margin:11px 13px 0;flex-shrink:0}
+.srpt-table-inner{
+  background:var(--card);border:1px solid var(--b2);
+  border-radius:8px;overflow:hidden
+}
+.srpt-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 13px;border-bottom:1px solid var(--b0)
+}
+.srpt-row:last-child{border-bottom:none}
+.srpt-total{
+  background:rgba(198,40,40,.07);
+  border-top:1px solid rgba(198,40,40,.22) !important
+}
+.srpt-lbl{font-family:var(--fs);font-size:11px;color:var(--t3)}
+.srpt-total .srpt-lbl{font-weight:700;color:var(--t1)}
+.srpt-val{font-family:var(--fm);font-size:11px}
+.srpt-pos{color:var(--ok)}
+.srpt-neg{color:var(--er)}
+.srpt-total .srpt-val{font-weight:700;color:var(--er2)}
+
+.srpt-diag{
+  margin:8px 13px 0;flex-shrink:0;
+  border-top:1px solid var(--g20);border-right:1px solid var(--g20);
+  border-bottom:1px solid var(--g20);border-left:3px solid var(--gold);
+  background:var(--g6);border-radius:7px;padding:11px 13px 11px 10px
+}
+.srpt-diag-lbl{
+  font-family:var(--fm);font-size:8px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--gold);margin-bottom:4px
+}
+.srpt-diag p{font-family:var(--fs);font-size:11px;color:var(--t2);line-height:1.58}
+
+.srpt-opt{
+  margin:7px 13px 0;background:var(--okb);
+  border:1px solid var(--okr);border-radius:7px;
+  padding:9px 12px;flex-shrink:0
+}
+.srpt-opt-lbl{
+  font-family:var(--fm);font-size:8px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--ok);margin-bottom:3px
+}
+.srpt-opt p{font-family:var(--fs);font-size:11px;color:var(--t3)}
+
+.srpt-actions{
+  display:flex;gap:7px;padding:9px 13px 13px;
+  margin-top:auto;flex-shrink:0
+}
+.srpt-actions button{
+  flex:1;height:37px;border-radius:6px;
+  font-family:var(--fs);font-size:10px;font-weight:600
+}
+.srpt-replay{
+  background:transparent;border:1px solid rgba(184,134,11,.4);
+  color:var(--gold)
+}
+.srpt-next{background:var(--gold);border:none;color:#000}
+
+/* ── personal record screen ── */
+.scr-record{
+  aspect-ratio:390/660;background:var(--bg);
+  display:flex;flex-direction:column;overflow:hidden;font-size:12px
+}
+.srec-hdr{
+  text-align:center;padding:17px 18px 12px;
+  border-bottom:1px solid var(--b1);flex-shrink:0
+}
+.srec-title{
+  font-family:var(--fm);font-size:11px;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--gold);font-weight:500;margin-bottom:3px
+}
+.srec-sub{font-family:var(--fs);font-size:10px;color:var(--t4)}
+
+.srec-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+  padding:11px 13px 9px;flex-shrink:0
+}
+.srec-stat{
+  background:var(--card);border:1px solid var(--b2);
+  border-radius:6px;padding:9px 7px;text-align:center
+}
+.srec-stat-lbl{
+  font-family:var(--fm);font-size:7px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--t4);display:block;margin-bottom:4px
+}
+.srec-stat-val{
+  font-family:var(--fd);font-size:13px;font-weight:700;
+  line-height:1;display:block
+}
+.srec-stat-sub{font-family:var(--fs);font-size:7px;color:var(--t4);display:block;margin-top:2px}
+.v-ok{color:var(--ok)}.v-gold{color:var(--gold)}
+
+.srec-lb{padding:0 13px;flex:1;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.srec-lb-hdr{
+  display:flex;justify-content:space-between;margin-bottom:5px
+}
+.srec-lb-hdr span{
+  font-family:var(--fm);font-size:8px;text-transform:uppercase;
+  letter-spacing:.07em
+}
+.srec-lb-hdr span:first-child{color:var(--t4)}
+.srec-lb-hdr span:last-child{color:var(--t5)}
+.srec-lb-list{
+  background:var(--card);border:1px solid var(--b2);
+  border-radius:8px;overflow:hidden
+}
+.srec-lb-row{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 11px;border-bottom:1px solid var(--b0)
+}
+.srec-lb-row:last-child{border-bottom:none}
+.srec-lb-you{
+  background:var(--g6);
+  border:1px solid rgba(184,134,11,.22);margin:-1px
+}
+.srec-lb-rank{font-family:var(--fm);font-size:10px;color:var(--t4);width:12px;text-align:center;flex-shrink:0}
+.srec-lb-you .srec-lb-rank{color:var(--gold)}
+.srec-lb-name{font-family:var(--fs);font-size:11px;color:var(--t3);flex:1}
+.srec-lb-you .srec-lb-name{font-weight:600;color:var(--t1)}
+.srec-lb-score{font-family:var(--fm);font-size:10px;color:var(--ok)}
+.srec-lb-you .srec-lb-score{color:var(--gold)}
+
+.srec-cta{
+  margin:10px 13px 0;height:38px;background:var(--gold);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--fs);font-size:10px;font-weight:700;
+  letter-spacing:.05em;color:#000;flex-shrink:0
+}
+.srec-note{
+  font-family:var(--fm);font-size:8px;text-align:center;
+  color:var(--t5);padding:5px 0 12px;flex-shrink:0
+}
+
+/* ── mid CTA ── */
+.mid-cta{
+  background:var(--bg2);border:1px solid var(--b2);
+  border-radius:12px;padding:44px 28px;text-align:center
+}
+.mid-cta p:first-child{
+  font-family:var(--fs);font-size:15px;color:var(--t3);margin-bottom:20px
+}
+.mid-cta p:last-child{
+  font-family:var(--fs);font-size:12px;color:var(--t5);margin-top:12px
+}
+
+/* ═══════════════ DATA SOURCES ═══════════════ */
+.data-intro{
+  font-family:var(--fs);font-weight:300;font-size:15px;
+  line-height:1.78;color:var(--t2);max-width:600px;margin-bottom:52px
+}
+.data-grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:640px){.data-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.data-grid{grid-template-columns:repeat(3,1fr)}}
+
+.data-card{padding:22px}
+.data-code{
+  font-family:var(--fm);font-size:11px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--gold);margin-bottom:3px
+}
+.data-name{
+  font-family:var(--fs);font-size:14px;font-weight:600;
+  color:var(--t1);margin-bottom:0
+}
+.data-rule{height:1px;background:var(--b2);margin:14px 0}
+.data-for{
+  font-family:var(--fm);font-size:9px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--t4);margin-bottom:3px
+}
+.data-val{font-family:var(--fs);font-size:13px;color:var(--t3);margin-bottom:10px}
+.data-val:last-child{margin-bottom:0}
+.data-desc{font-family:var(--fs);font-size:13px;color:var(--t3);line-height:1.58}
+.data-foot{
+  font-family:var(--fs);font-size:13px;color:var(--t5);
+  text-align:center;margin-top:24px
+}
+
+/* ═══════════════ AUDIENCES ═══════════════ */
+.aud-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:52px}
+@media(min-width:640px){.aud-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.aud-grid{grid-template-columns:repeat(3,1fr)}}
+
+.aud-card{padding:24px;display:flex;flex-direction:column}
+.aud-tag{
+  font-family:var(--fm);font-size:10px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--gold);margin-bottom:10px
+}
+.aud-title{
+  font-family:var(--fs);font-size:15px;font-weight:600;
+  color:var(--t1);line-height:1.42;margin-bottom:12px
+}
+.aud-body{
+  font-family:var(--fs);font-size:14px;color:var(--t3);
+  line-height:1.65;flex:1;margin-bottom:18px
+}
+.aud-cta{
+  font-family:var(--fs);font-size:13px;font-weight:600;
+  color:var(--gold);transition:color .15s
+}
+.aud-cta:hover{color:var(--gold2)}
+.aud-cta-muted{color:var(--t4) !important}
+.aud-cta-muted:hover{color:var(--t1) !important}
+
+.proof-bar{
+  border-top:1px solid var(--b1);padding-top:44px;text-align:center
+}
+.proof-num{
+  font-family:var(--fd);font-weight:700;color:var(--gold);
+  line-height:1;margin-bottom:8px;
+  font-size:clamp(32px,4vw,48px)
+}
+.proof-sub{font-family:var(--fs);font-size:14px;color:var(--t3)}
+
+/* ═══════════════ INSTITUTIONS ═══════════════ */
+.inst-sep{
+  position:relative;height:1px;background:var(--b2);margin-bottom:76px
+}
+.inst-intro{
+  font-family:var(--fs);font-weight:300;
+  font-size:clamp(15px,1.2vw,17px);line-height:1.68;
+  color:var(--t2);margin-top:16px;max-width:520px
+}
+
+.inst-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:44px}
+@media(min-width:640px){.inst-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.inst-grid{grid-template-columns:repeat(3,1fr)}}
+
+.inst-card{padding:24px;display:flex;flex-direction:column}
+.inst-tag{
+  font-family:var(--fm);font-size:10px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--gold);margin-bottom:10px
+}
+.inst-title{
+  font-family:var(--fs);font-size:14px;font-weight:600;
+  color:var(--t1);margin-bottom:12px
+}
+.inst-body{
+  font-family:var(--fs);font-size:13px;color:var(--t3);
+  line-height:1.65;flex:1;margin-bottom:14px
+}
+.inst-note{font-family:var(--fs);font-size:13px;color:var(--t4);font-style:italic}
+
+.inst-cta-block{text-align:center}
+.inst-cta-note{
+  font-family:var(--fs);font-size:13px;color:var(--t5);margin-top:12px
+}
+
+/* ═══════════════ FINAL CTA ═══════════════ */
+.final-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 55% 45% at 50% 52%,rgba(184,134,11,.08) 0%,transparent 68%)
+}
+.final-inner{
+  position:relative;z-index:1;text-align:center;
+  padding-top:100px;padding-bottom:120px
+}
+.final-tagline{
+  font-family:var(--fd);font-size:18px;font-style:italic;
+  font-weight:400;color:var(--t4);margin-bottom:14px
+}
+.final-h2{
+  font-family:var(--fd);font-weight:900;color:var(--t1);
+  font-size:clamp(38px,5.5vw,60px);line-height:1.0;
+  letter-spacing:-.04em;margin-bottom:36px
+}
+.final-cta-group{display:flex;flex-direction:column;align-items:center;gap:11px}
+.final-cta-btn{max-width:380px;width:100%}
+.early-access{
+  width:100%;max-width:560px;margin:0 auto 26px;padding:22px;
+  text-align:left;background:var(--bg2);border:1px solid var(--b2);
+  border-radius:10px
+}
+.early-access h3{
+  font-family:var(--fd);font-size:20px;font-weight:700;color:var(--t1);
+  margin-bottom:6px
+}
+.early-access-copy,.early-access-privacy{
+  font-family:var(--fs);font-size:13px;line-height:1.6;color:var(--t4)
+}
+.early-access-copy{margin-bottom:14px}
+.early-access-privacy{margin-top:8px}
+.early-access label{
+  display:block;font-family:var(--fs);font-size:13px;font-weight:600;
+  color:var(--t2);margin-bottom:6px
+}
+.early-access-controls{display:flex;gap:9px}
+.early-access input[type="email"]{
+  flex:1;min-width:0;height:46px;padding:0 12px;background:var(--bg);
+  border:1px solid var(--b2);border-radius:6px;color:var(--t1);
+  font-family:var(--fs);font-size:14px
+}
+.early-access input[type="email"]:focus{outline:2px solid var(--gold);outline-offset:2px}
+.early-access-controls button{flex-shrink:0}
+.early-access-status,.early-access-error{
+  font-family:var(--fs);font-size:13px;line-height:1.5;margin-top:10px
+}
+.early-access-status{color:var(--t3)}
+.early-access-error{color:var(--er)}
+.early-access-status:empty,.early-access-error:empty{display:none}
+.early-access-honeypot{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0
+}
+@media(max-width:480px){
+  .early-access{padding:18px}
+  .early-access-controls{flex-direction:column}
+  .early-access-controls button{width:100%}
+}
+.final-meta{
+  font-family:var(--fs);font-size:12px;color:var(--t5);
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:5px
+}
+.final-meta .sep{color:var(--b2)}
+.final-inst{
+  font-family:var(--fs);font-size:13px;color:var(--t5);margin-top:8px
+}
+.final-inst a{color:var(--t4);transition:color .15s}
+.final-inst a:hover{color:var(--t3)}
+
+/* ═══════════════ FOOTER ═══════════════ */
+#footer{padding:48px 0 32px}
+.footer-grid{
+  display:grid;grid-template-columns:1fr;
+  gap:28px;margin-bottom:32px
+}
+@media(min-width:640px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.footer-grid{grid-template-columns:1fr 1fr 1fr;gap:40px}}
+
+.footer-logo{
+  font-family:var(--fd);font-size:18px;font-weight:700;
+  color:var(--gold);margin-bottom:6px
+}
+.footer-taglines p{font-family:var(--fs);font-size:12px;color:var(--t5);line-height:1.6}
+
+.footer-data-head{
+  font-family:var(--fm);font-size:10px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--t5);margin-bottom:10px
+}
+.footer-chips{display:flex;flex-wrap:wrap;gap:0;align-items:center}
+.footer-chip{font-family:var(--fm);font-size:11px;color:var(--t4)}
+.footer-chip+.footer-chip::before{content:'·';margin:0 6px;color:var(--b2)}
+
+.footer-founders{display:flex;flex-direction:column;gap:14px}
+.founder-name{font-family:var(--fs);font-size:13px;font-weight:500;color:var(--t3)}
+.founder-role{font-family:var(--fs);font-size:12px;color:var(--t4)}
+.founder-link{color:var(--gold);margin-left:5px;transition:color .15s}
+.founder-link:hover{color:var(--gold2)}
+
+.footer-rule{border-top:1px solid var(--b0);padding-top:20px;text-align:center}
+.footer-copy{font-family:var(--fs);font-size:12px;color:var(--t5)}
+
+/* ═══════════════ STICKY MOBILE CTA ═══════════════ */
+#sticky{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;
+  padding:12px 16px;
+  padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  background:rgba(10,10,6,.96);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--b1);
+  transform:translateY(104%);
+  transition:transform .3s var(--e)
+}
+#sticky.show{transform:translateY(0)}
+@media(min-width:768px){#sticky{display:none}}
+
+/* ═══════════════ MODAL ═══════════════ */
+#modal{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  align-items:center;justify-content:center;
+  padding:16px;display:none
+}
+#modal.open{display:flex}
+.modal-box{
+  background:var(--card);border:1px solid var(--b2);
+  border-radius:14px;padding:32px;width:100%;max-width:476px;
+  box-shadow:var(--ss);position:relative;
+  max-height:calc(100dvh - 32px);overflow-y:auto
+}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--card2);border:1px solid var(--b2);
+  font-size:14px;color:var(--t4);transition:color .15s,background .15s
+}
+.modal-close:hover{color:var(--t1);background:var(--overlay)}
+.modal-close:active{transform:scale(.92)}
+.modal-tag{
+  font-family:var(--fm);font-size:11px;text-transform:uppercase;
+  letter-spacing:.11em;color:var(--gold);margin-bottom:8px
+}
+.modal-h{
+  font-family:var(--fd);font-size:24px;font-weight:700;
+  color:var(--t1);margin-bottom:8px
+}
+.modal-desc{font-family:var(--fs);font-size:14px;color:var(--t3);margin-bottom:28px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{
+  font-family:var(--fm);font-size:10px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--t4)
+}
+.field input{
+  font-family:var(--fs);font-size:14px;color:var(--t1);
+  background:var(--bg);border:1px solid var(--b2);
+  border-radius:6px;padding:12px 15px;outline:none;
+  transition:border-color .15s;-webkit-appearance:none
+}
+.field input:focus{border-color:var(--gold)}
+.field input::placeholder{color:var(--t5)}
+.field input.error{border-color:var(--er)}
+.field input.error:focus{border-color:var(--er)}
+.field-err{
+  font-family:var(--fs);font-size:12px;color:var(--er);
+  display:none;margin-top:2px
+}
+.field-err.show{display:block}
+#form-submit{margin-top:4px}
+.form-pending{display:none;text-align:center;padding:18px 0 0}
+.form-pending.show{display:block}
+.form-pending-title{
+  font-family:var(--fd);font-size:20px;font-weight:700;
+  color:var(--t1);margin-bottom:7px
+}
+.form-pending-copy{font-family:var(--fs);font-size:14px;color:var(--t3)}
+
+/* ═══════════════ REVEALS ═══════════════ */
+.reveal{
+  opacity:0;transform:translateY(18px);
+  transition:opacity .65s var(--e),transform .65s var(--e)
+}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.08s}
+.reveal-delay-2{transition-delay:.16s}
+.reveal-delay-3{transition-delay:.24s}
+
+/* hero enters immediately */
+.au0{animation:au .52s 0ms var(--e) both}
+.au1{animation:au .52s 80ms var(--e) both}
+.au2{animation:au .52s 160ms var(--e) both}
+.au3{animation:au .52s 240ms var(--e) both}
+.au4{animation:au .52s 320ms var(--e) both}
+.au5{animation:au .52s 400ms var(--e) both}
+@keyframes au{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ═══════════════ REDUCED MOTION ═══════════════ */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important
+  }
+  .reveal{opacity:1 !important;transform:none !important}
+  .proof-dot{animation:none !important;box-shadow:0 0 0 0 rgba(90,171,101,.4) !important}
+  .hero-ss-col:hover .ss-frame{transform:none !important}
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip">Skip to main content</a>
+
+<!-- NAV -->
+<nav id="nav" aria-label="Primary navigation">
+  <div class="wrap">
+    <a href="#hero" class="nav-logo" aria-label="Virtual Farm — home">Virtual Farm</a>
+    <div class="nav-right">
+      <a href="#institutions" class="nav-link">For Institutions</a>
+      <a href="#simulator" class="btn btn-gold-sm">View Concept</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main" tabindex="-1">
+
+<!-- HERO -->
+<section id="hero" tabindex="-1" aria-labelledby="hero-h1">
+  <div class="wrap hero-grid">
+
+    <!-- copy -->
+    <div class="hero-copy">
+      <span class="hero-eyebrow au0">Boro Rice Decision Simulator — In Development</span>
+
+      <h1 id="hero-h1" class="hero-h1 au1">
+        Boro decisions, before real money is at stake.
+      </h1>
+
+      <p class="hero-sub au2">
+        Virtual Farm is a concept for a Bangladesh-focused Boro rice decision simulator. Its production model is not available yet because required agricultural data has not been verified.
+      </p>
+
+      <div class="hero-proof au3">
+        <span class="proof-dot" aria-hidden="true"></span>
+        <span class="proof-text">Production data not yet verified</span>
+      </div>
+
+      <div class="hero-cta au4">
+        <a href="#simulator" class="btn btn-gold" aria-label="Explore the simulator concept">
+          Explore the Simulator Concept
+        </a>
+        <p class="hero-meta">
+          <span>Concept preview</span>
+          <span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>
+          <span>Language support not yet available</span>
+          <span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>
+          <span>Production model unavailable</span>
+        </p>
+      </div>
+
+      <div class="trust-row au5" aria-label="Intended data sources">
+        <div class="trust-scroll">
+          <span class="trust-pre">Intended data sources</span>
+          <span class="trust-chip">BRRI</span><span class="trust-sep" aria-hidden="true">·</span>
+          <span class="trust-chip">BBS</span><span class="trust-sep" aria-hidden="true">·</span>
+          <span class="trust-chip">FPMU</span><span class="trust-sep" aria-hidden="true">·</span>
+          <span class="trust-chip">BWDB</span><span class="trust-sep" aria-hidden="true">·</span>
+          <span class="trust-chip">DAE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- screenshot (desktop) -->
+    <div class="hero-ss-col" aria-hidden="true">
+      <div class="hero-ss-aura"></div>
+      <div class="ss-frame">
+      <span class="hero-preview-label">Illustrative concept</span>
+      <div class="screen">
+          <!-- status bar -->
+          <div class="sc-status">
+            <span class="sc-status-time">9:41</span>
+            <div class="sc-status-icons">
+              <div class="sc-status-bar">
+                <span style="height:35%"></span><span style="height:58%"></span>
+                <span style="height:78%"></span><span style="height:100%"></span>
+              </div>
+              <div class="sc-battery"><div class="sc-battery-fill"></div></div>
+            </div>
+          </div>
+          <!-- app nav -->
+          <div class="sc-nav">
+            <div class="sc-logo">VF</div>
+            <div class="sc-season-chip">Preview</div>
+            <div class="sc-dots"><span></span><span></span><span></span></div>
+          </div>
+          <!-- header -->
+          <div class="sc-head">
+            <span class="sc-crop-tag">Boro Rice</span>
+            <p class="sc-day">Timeline unavailable</p>
+          </div>
+          <!-- stats -->
+          <div class="sc-stats">
+            <div class="sc-stat">
+              <span class="sc-stat-label">Capital</span>
+              <span class="sc-stat-val" style="color:var(--gold)">Not set</span>
+              <span class="sc-stat-sub">Production data required</span>
+            </div>
+            <div class="sc-stat">
+              <span class="sc-stat-label">Yield</span>
+              <span class="sc-stat-val" style="color:var(--t1)">Unavailable</span>
+              <span class="sc-stat-sub">Verified yield data required</span>
+            </div>
+            <div class="sc-stat">
+              <span class="sc-stat-label">Weather</span>
+              <span class="sc-stat-val" style="color:#D4A017">Unavailable</span>
+              <span class="sc-stat-sub">Verified weather data required</span>
+            </div>
+          </div>
+          <!-- progress -->
+          <div class="sc-prog">
+            <div class="sc-prog-row">
+              <span>Production model</span><span>Unavailable</span>
+            </div>
+            <div class="sc-track"><div class="sc-fill" style="width:0"></div></div>
+          </div>
+          <!-- decisions -->
+          <div class="sc-decisions">
+            <p class="sc-dec-head">Decisions</p>
+            <div class="sc-dec-list">
+              <div class="sc-dec" data-s="pend">
+                <div class="sc-dec-icon"></div>
+                <span class="sc-dec-name">Farm Size</span>
+                <span class="sc-dec-badge"></span>
+              </div>
+              <div class="sc-dec" data-s="pend">
+                <div class="sc-dec-icon"></div>
+                <span class="sc-dec-name">Seed Quality</span>
+                <span class="sc-dec-badge"></span>
+              </div>
+              <div class="sc-dec" data-s="pend">
+                <div class="sc-dec-icon"></div>
+                <span class="sc-dec-name">Fertilizer</span>
+                <span class="sc-dec-badge"></span>
+              </div>
+              <div class="sc-dec" data-s="pend">
+                <div class="sc-dec-icon"></div>
+                <span class="sc-dec-name">Labor</span>
+                <span class="sc-dec-badge"></span>
+              </div>
+              <div class="sc-dec" data-s="pend">
+                <div class="sc-dec-icon"></div>
+                <span class="sc-dec-name">Irrigation</span>
+                <span class="sc-dec-badge"></span>
+              </div>
+              <div class="sc-dec" data-s="pend">
+                <div class="sc-dec-icon"></div>
+                <span class="sc-dec-name">Market Timing</span>
+                <span class="sc-dec-badge"></span>
+              </div>
+            </div>
+          </div>
+          <!-- cta -->
+          <div class="sc-btn">PRODUCTION FLOW UNAVAILABLE</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- REALITY -->
+<section class="section sec-reality" aria-labelledby="reality-h2">
+  <div class="wrap">
+    <div class="reality-body reveal">
+      <div class="sec-hd">
+        <span class="label">The Reality</span>
+        <h2 id="reality-h2" class="h2">Agricultural decisions happen in the field—with real costs attached.</h2>
+      </div>
+
+      <ul class="reality-compare" aria-label="How other industries train before real-world action">
+        <li>A pilot trains in a simulator before their first flight.</li>
+        <li>A surgeon practices on models before their first operation.</li>
+        <li>An engineer runs digital stress tests before building the first prototype.</li>
+      </ul>
+
+      <p>Boro rice farming involves decisions about land, seed, fertilizer, labor, irrigation, and when to sell or store a harvest.</p>
+      <p>Virtual Farm is being developed as a way to explore how those decisions may affect a season. Its production model is not available until the required agricultural and economic inputs can be verified.</p>
+      <p>Reliable decision support requires transparent methods and traceable evidence for every value used.</p>
+      <p class="reality-strong">That evidence is a prerequisite, not a placeholder.</p>
+
+      <blockquote class="reality-pullquote">
+        <p>A useful simulator must make every modeled input traceable to evidence.</p>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+
+<!-- PRODUCT -->
+<section class="section sec-product" aria-labelledby="product-h2">
+  <div class="wrap">
+    <div class="reveal" style="max-width:640px">
+      <div class="sec-hd">
+        <span class="label">The Product</span>
+        <h2 id="product-h2" class="h2">A concept for a Boro rice decision simulator.</h2>
+      </div>
+      <p class="body">The planned simulator follows six Boro rice decisions from season setup through a financial outcome and diagnostic. The production model is currently blocked because required source-backed values are not available.</p>
+      <p class="body" style="font-weight:700;color:var(--t1);font-size:15px;margin-top:4px">Six decisions. Evidence before estimates.</p>
+      <p class="body">Input costs, yield effects, market prices, and weather risks must each be supported by traceable evidence before they can produce a production result.</p>
+      <p class="body" style="font-weight:700;color:var(--t1);font-size:15px;margin-top:4px">No production result is shown as verified.</p>
+    </div>
+
+    <div class="stat-bar reveal">
+      <div class="stat-cell">
+        <span class="stat-num">6</span>
+        <span class="stat-lbl">Key Decisions</span>
+        <p class="stat-desc">The planned Boro decision flow covers six farmer choices.</p>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">0</span>
+        <span class="stat-lbl">Verified Production Datasets</span>
+        <p class="stat-desc">Required agricultural and economic source data is not yet configured.</p>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num" style="font-size:clamp(26px,3.2vw,40px)">In<span style="font-size:.5em;margin-left:2px"> progress</span></span>
+        <span class="stat-lbl">Production Model</span>
+        <p class="stat-desc">The simulator remains unavailable until required data is verified.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- PROCESS -->
+<section class="section sec-process" aria-labelledby="process-h2">
+  <div class="wrap">
+    <div class="sec-hd reveal" style="max-width:400px">
+      <span class="label">The Process</span>
+      <h2 id="process-h2" class="h2">How the planned simulation is structured.</h2>
+    </div>
+    <ol class="process-list reveal" aria-label="Planned simulation structure">
+      <li class="process-step">
+        <span class="step-num" aria-hidden="true">01</span>
+        <div class="step-body">
+          <p class="step-title">Review Your Conditions</p>
+          <p class="step-desc">The planned flow begins with farm conditions such as land size. Verified production starting conditions are not yet available.</p>
+        </div>
+      </li>
+      <li class="process-step">
+        <span class="step-num" aria-hidden="true">02</span>
+        <div class="step-body">
+          <p class="step-title">Make Six Key Decisions</p>
+          <p class="step-desc">The planned choices are farm size, seed quality, fertilizer, labor or automation, irrigation, and whether to sell or store. Validated costs, yield effects, and risks remain to be sourced.</p>
+        </div>
+      </li>
+      <li class="process-step">
+        <span class="step-num" aria-hidden="true">03</span>
+        <div class="step-body">
+          <p class="step-title">The Season Runs</p>
+          <p class="step-desc">Weather and market behavior can only be modeled after their probabilities and effects are supported by production data. Those inputs are not currently available.</p>
+        </div>
+      </li>
+      <li class="process-step">
+        <span class="step-num" aria-hidden="true">04</span>
+        <div class="step-body">
+          <p class="step-title">Your Result</p>
+          <p class="step-desc">The intended result is a BDT profit or loss. No production result can be calculated until required model inputs are verified.</p>
+        </div>
+      </li>
+      <li class="process-step">
+        <span class="step-num" aria-hidden="true">05</span>
+        <div class="step-body">
+          <p class="step-title">The Diagnostic</p>
+          <p class="step-desc">The planned diagnostic will explain modeled contributions. Causal comparisons and an optimal path are not yet implemented as a production feature.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+
+<!-- SIMULATOR PREVIEW -->
+<section id="simulator" class="section sec-simulator" tabindex="-1" aria-labelledby="sim-h2">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <span class="label">Interface Concept</span>
+      <h2 id="sim-h2" class="h2">A preview of the planned season experience.</h2>
+      <p>The six-decision form below connects to the Flask API. The interface mockups farther down are static concepts; their data slots are marked unavailable and are not production results or real user records.</p>
+    </div>
+
+    <div class="live-simulator reveal" aria-labelledby="live-sim-title">
+      <span class="label">Connected decision flow</span>
+      <h3 id="live-sim-title">Submit the six decisions</h3>
+      <p class="live-simulator-intro">This form sends your choices to the simulation API. Required production data is still unavailable, so the current production model will return a clear blocked-data response rather than an invented result.</p>
+      <form id="simulation-form" aria-describedby="simulation-status">
+        <div class="sim-decision-grid">
+          <div class="sim-field">
+            <label for="sim-farm-size">1. Farm size</label>
+            <select id="sim-farm-size" name="farm_size_bigha" required>
+              <option value="1">1 bigha</option>
+              <option value="3">3 bigha</option>
+            </select>
+          </div>
+          <div class="sim-field">
+            <label for="sim-seed-quality">2. Seed quality</label>
+            <select id="sim-seed-quality" name="seed_quality" required>
+              <option value="local">Local seed</option>
+              <option value="brri_certified">BRRI-certified seed</option>
+            </select>
+          </div>
+          <div class="sim-field">
+            <label for="sim-fertilizer">3. Fertilizer</label>
+            <select id="sim-fertilizer" name="fertilizer_type" required>
+              <option value="organic">Organic</option>
+              <option value="chemical">Chemical</option>
+            </select>
+          </div>
+          <div class="sim-field">
+            <label for="sim-labor">4. Labor or automation</label>
+            <select id="sim-labor" name="labor_choice" required>
+              <option value="seasonal_workers">Seasonal workers</option>
+              <option value="power_tiller">Power tiller</option>
+            </select>
+          </div>
+          <div class="sim-field">
+            <label for="sim-irrigation">5. Irrigation</label>
+            <select id="sim-irrigation" name="irrigation_choice" required>
+              <option value="rainfed">Rainfed</option>
+              <option value="pump">Pump irrigation</option>
+            </select>
+          </div>
+          <div class="sim-field">
+            <label for="sim-sale">6. Sell or store</label>
+            <select id="sim-sale" name="sell_or_store" required>
+              <option value="sell">Sell</option>
+              <option value="store">Store</option>
+            </select>
+          </div>
+        </div>
+        <div class="sim-form-actions">
+          <button type="submit" id="simulation-submit" class="btn btn-gold">Run simulation</button>
+          <button type="reset" id="simulation-reset" class="btn btn-outline">Reset decisions</button>
+        </div>
+      </form>
+      <p id="simulation-status" class="sim-status" role="status" aria-live="polite">Choose all six decisions, then submit them to the Flask simulation API.</p>
+      <div id="simulation-error" class="sim-error" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
+      <section id="simulation-result" class="sim-result" aria-labelledby="simulation-result-title" hidden>
+        <h4 id="simulation-result-title" tabindex="-1">Simulation result</h4>
+        <p id="simulation-result-copy" class="sim-result-copy"></p>
+        <div class="sim-result-grid">
+          <div class="sim-result-item"><span>Gross yield</span><strong id="result-gross-yield"></strong></div>
+          <div class="sim-result-item"><span>Saleable yield</span><strong id="result-saleable-yield"></strong></div>
+          <div class="sim-result-item"><span>Total costs</span><strong id="result-total-costs"></strong></div>
+          <div class="sim-result-item"><span>Gross revenue</span><strong id="result-gross-revenue"></strong></div>
+          <div class="sim-result-item"><span>Net result</span><strong id="result-net-profit"></strong></div>
+          <div class="sim-result-item"><span>Market price</span><strong id="result-market-price"></strong></div>
+        </div>
+        <div class="sim-result-diagnostic">
+          <h5>Diagnostic</h5>
+          <ul id="result-diagnostic-list"></ul>
+        </div>
+        <div class="sim-form-actions sim-result-actions">
+          <button type="button" id="simulation-replay" class="btn btn-gold">Replay these decisions</button>
+          <button type="button" id="simulation-result-reset" class="btn btn-outline">Start over</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="sim-grid reveal">
+
+      <!-- Decision Screen -->
+      <div class="sim-card">
+        <div class="phone-frame" role="img" aria-label="Illustrative decision screen with production costs and effects unavailable">
+          <div class="scr-decision">
+            <div class="sdec-hdr">
+              <span class="sdec-hdr-back">←</span>
+              <span class="sdec-hdr-title">Fertilizer Strategy</span>
+              <span class="sdec-hdr-prog">3 / 6</span>
+            </div>
+            <div class="sdec-ctx">Review the available choices. Production costs, yield effects, and soil risks are not configured.</div>
+            <div class="sdec-opts">
+              <!-- Option A: Organic -->
+              <div class="sdec-opt sdec-opt-a">
+                <div class="sdec-opt-hdr">
+                  <span class="sdec-opt-name-a">ORGANIC</span>
+                  <span class="sdec-price">Cost not configured</span>
+                </div>
+                <div class="sdec-attrs">
+                  <span class="sdec-attr sdec-neu">Soil risk not configured</span>
+                  <span class="sdec-attr sdec-neu">Relative cost not configured</span>
+                  <span class="sdec-attr sdec-neu">Yield effect not configured</span>
+                </div>
+              </div>
+              <!-- Option B: Chemical (selected) -->
+              <div class="sdec-opt sdec-opt-b">
+                <div class="sdec-opt-hdr">
+                  <span class="sdec-opt-name-b">CHEMICAL</span>
+                  <span class="sdec-selected">Selected</span>
+                  <span class="sdec-price">Cost not configured</span>
+                </div>
+                <div class="sdec-attrs">
+                  <span class="sdec-attr sdec-neu">Yield effect not configured</span>
+                  <span class="sdec-attr sdec-neu">Soil risk not configured</span>
+                  <span class="sdec-attr sdec-neu">Relative cost not configured</span>
+                </div>
+              </div>
+            </div>
+            <div class="sdec-risk-note">
+              <p class="sdec-risk-lbl">Risk Profile</p>
+              <p>Risk probability and effect are not configured from verified data.</p>
+            </div>
+            <div class="sdec-confirm">CONFIRM: CHEMICAL FERTILIZER</div>
+            <p class="sdec-note">Decision 3 of 6 — cannot be undone</p>
+          </div>
+        </div>
+        <div class="sim-caption">
+          <p class="sim-caption-title">Decision Screen</p>
+          <p class="sim-caption-desc">Concept: binary choices. Production costs, effects, and risks are not configured from verified evidence.</p>
+        </div>
+      </div>
+
+      <!-- Profit Report -->
+      <div class="sim-card">
+        <div class="phone-frame" role="img" aria-label="Illustrative report layout with production results unavailable">
+          <div class="scr-report">
+            <div class="srpt-hero">
+              <p class="srpt-tag">Result unavailable</p>
+              <p class="srpt-result-lbl">Net result</p>
+              <p class="srpt-result-val">Not available</p>
+              <p class="srpt-note">Verified production data is required.</p>
+            </div>
+            <div class="srpt-table">
+              <div class="srpt-table-inner">
+                <div class="srpt-row"><span class="srpt-lbl">Gross revenue</span><span class="srpt-val">Not available</span></div>
+                <div class="srpt-row"><span class="srpt-lbl">Input costs</span><span class="srpt-val">Not available</span></div>
+                <div class="srpt-row"><span class="srpt-lbl">Labor cost</span><span class="srpt-val">Not available</span></div>
+                <div class="srpt-row srpt-total"><span class="srpt-lbl">Net result</span><span class="srpt-val">Not available</span></div>
+              </div>
+            </div>
+            <div class="srpt-diag">
+              <p class="srpt-diag-lbl">What Went Wrong</p>
+              <p>No diagnostic is available until production data and supported model comparisons are implemented.</p>
+            </div>
+            <div class="srpt-opt">
+              <p class="srpt-opt-lbl">Optimal Path</p>
+              <p>No verified optimal path is available.</p>
+            </div>
+            <div class="srpt-actions">
+              <button class="srpt-replay" tabindex="-1" aria-hidden="true">REPLAY</button>
+              <button class="srpt-next" tabindex="-1" aria-hidden="true">SEASON 2 →</button>
+            </div>
+          </div>
+        </div>
+        <div class="sim-caption">
+          <p class="sim-caption-title">Profit Report</p>
+          <p class="sim-caption-desc">Concept: a financial result and diagnostic layout. No production values or optimal path are available.</p>
+        </div>
+      </div>
+
+      <!-- Personal Record -->
+      <div class="sim-card">
+        <div class="phone-frame" role="img" aria-label="Illustrative profile layout with no user records or leaderboard data">
+          <div class="scr-record">
+            <div class="srec-hdr">
+              <p class="srec-title">Your Farm Record</p>
+              <p class="srec-sub">Season history unavailable</p>
+            </div>
+            <div class="srec-stats">
+              <div class="srec-stat">
+                <span class="srec-stat-lbl">Best</span>
+                <span class="srec-stat-val v-ok">Unavailable</span>
+                <span class="srec-stat-sub">No verified record</span>
+              </div>
+              <div class="srec-stat">
+                <span class="srec-stat-lbl">Seasons</span>
+                <span class="srec-stat-val v-gold">Unavailable</span>
+                <span class="srec-stat-sub">No season history</span>
+              </div>
+              <div class="srec-stat">
+                <span class="srec-stat-lbl">Streak</span>
+                <span class="srec-stat-val v-gold">Unavailable</span>
+                <span class="srec-stat-sub">No season history</span>
+              </div>
+            </div>
+            <div class="srec-lb">
+              <div class="srec-lb-hdr">
+                <span>Season Leaderboard</span>
+                <span>Unavailable</span>
+              </div>
+              <div class="srec-lb-list">
+                <div class="srec-lb-row">
+                  <span class="srec-lb-name">No leaderboard data is available.</span>
+                </div>
+              </div>
+            </div>
+            <div class="srec-cta">START SEASON 4</div>
+            <p class="srec-note">Certificate feature not currently available</p>
+          </div>
+        </div>
+        <div class="sim-caption">
+          <p class="sim-caption-title">Personal Record</p>
+          <p class="sim-caption-desc">An interface concept only. No user profiles, season history, or leaderboard are currently available.</p>
+        </div>
+      </div>
+
+    </div><!-- /sim-grid -->
+
+    <div class="mid-cta reveal">
+      <p>The decision form above sends choices to the API. Production results remain blocked until required data is verified.</p>
+      <a href="#final" class="btn btn-gold">See Project Status</a>
+      <p>The six-decision API is connected; production simulation remains unavailable.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- DATA SOURCES -->
+<section class="section sec-data" aria-labelledby="data-h2">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <span class="label">Data Requirements</span>
+      <h2 id="data-h2" class="h2">Production inputs are not yet verified.</h2>
+    </div>
+    <p class="data-intro reveal">The sources below are potential or intended sources to investigate—not evidence that the required data has been obtained. No production agricultural or economic values are currently verified in the model.</p>
+
+    <div class="data-grid">
+      <div class="card data-card reveal">
+        <p class="data-code">BBS</p>
+        <p class="data-name">Bangladesh Bureau of Statistics</p>
+        <div class="data-rule"></div>
+        <p class="data-for">Potential source</p>
+        <p class="data-val">Yield statistics</p>
+        <p class="data-for">Evidence needed</p>
+        <p class="data-desc">A cited, applicable Boro yield dataset with units, geography, season, and methodology.</p>
+      </div>
+      <div class="card data-card reveal reveal-delay-1">
+        <p class="data-code">DAE</p>
+        <p class="data-name">Dept. of Agricultural Extension</p>
+        <div class="data-rule"></div>
+        <p class="data-for">Potential source</p>
+        <p class="data-val">Input costs</p>
+        <p class="data-for">Evidence needed</p>
+        <p class="data-desc">Source records for seed, fertilizer, labor, machinery, and irrigation costs with date and geography.</p>
+      </div>
+      <div class="card data-card reveal reveal-delay-2">
+        <p class="data-code">FPMU</p>
+        <p class="data-name">Food Planning &amp; Monitoring Unit</p>
+        <div class="data-rule"></div>
+        <p class="data-for">Potential source</p>
+        <p class="data-val">Paddy prices</p>
+        <p class="data-for">Evidence needed</p>
+        <p class="data-desc">Producer-side paddy prices and traceable time-series evidence for any storage price movement.</p>
+      </div>
+      <div class="card data-card reveal">
+        <p class="data-code">BWDB</p>
+        <p class="data-name">Bangladesh Water Development Board</p>
+        <div class="data-rule"></div>
+        <p class="data-for">Potential source</p>
+        <p class="data-val">Weather risks</p>
+        <p class="data-for">Evidence needed</p>
+        <p class="data-desc">Applicable Boro-season weather observations, event probabilities, and sourced yield effects.</p>
+      </div>
+      <div class="card data-card reveal reveal-delay-1">
+        <p class="data-code">BARI</p>
+        <p class="data-name">Bangladesh Agricultural Research Institute</p>
+        <div class="data-rule"></div>
+        <p class="data-for">Potential source</p>
+        <p class="data-val">Crop effects</p>
+        <p class="data-for">Evidence needed</p>
+        <p class="data-desc">Sourced agronomic evidence for any modeled input effect, soil degradation, or crop risk.</p>
+      </div>
+      <div class="card-gold data-card reveal reveal-delay-2" style="padding:22px 22px 22px 19px">
+        <p class="data-code">Field</p>
+        <p class="data-name">Direct Farmer Interviews</p>
+        <div class="data-rule"></div>
+        <p class="data-for">Potential source</p>
+        <p class="data-val">Ground-truth evidence</p>
+        <p class="data-for">Evidence needed</p>
+        <p class="data-desc">Documented farmer research with consent, sampling method, location, season, and verified records.</p>
+      </div>
+    </div>
+
+    <p class="data-foot reveal">Source citations and update cadence will be documented if and when qualifying evidence is obtained.</p>
+  </div>
+</section>
+
+
+<!-- AUDIENCES -->
+<section class="section sec-audiences" aria-labelledby="aud-h2">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <span class="label">Intended Audience</span>
+      <h2 id="aud-h2" class="h2">Being designed for people learning about agricultural decisions.</h2>
+    </div>
+
+    <div class="aud-grid">
+      <div class="card aud-card reveal">
+        <p class="aud-tag">Agricultural Students</p>
+        <h3 class="aud-title">A future learning aid for agricultural studies.</h3>
+        <p class="aud-body">The planned Boro decision flow may provide a structured way to discuss farm choices in crop science, agricultural economics, and agronomy. The simulator is not yet available for use.</p>
+        <a href="#simulator" class="aud-cta">View the Concept →</a>
+      </div>
+      <div class="card aud-card reveal reveal-delay-1">
+        <p class="aud-tag">Aspiring &amp; Early-Stage Farmers</p>
+        <h3 class="aud-title">Explore the decisions a Boro season involves.</h3>
+        <p class="aud-body">Virtual Farm is intended to help people reason about farm size, inputs, labor, irrigation, and harvest timing. It cannot currently provide production calculations or financial guidance.</p>
+        <a href="#simulator" class="aud-cta">View the Concept →</a>
+      </div>
+      <div class="card aud-card reveal reveal-delay-2">
+        <p class="aud-tag">Agricultural Professionals</p>
+        <h3 class="aud-title">A possible discussion tool for agricultural programs.</h3>
+        <p class="aud-body">The concept may be relevant to extension, agricultural education, and farmer-support programs. Institutional access and training functionality are not currently available.</p>
+        <a href="#institutions" class="aud-cta aud-cta-muted">Institutional Concept →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- INSTITUTIONS -->
+<section id="institutions" class="section sec-institutions" tabindex="-1" aria-labelledby="inst-h2">
+  <div class="wrap">
+    <div class="inst-sep" role="separator" aria-hidden="true"></div>
+
+    <div class="reveal">
+      <span class="label">For Institutions</span>
+      <h2 id="inst-h2" class="h2">A concept for agricultural decision-training programs.</h2>
+      <p class="inst-intro">The concept may be relevant to universities, NGOs, microfinance institutions, and government extension programs. Institutional access is not currently available.</p>
+    </div>
+
+    <div class="inst-grid" style="margin-top:52px">
+      <div class="card inst-card reveal">
+        <p class="inst-tag">Universities &amp; Colleges</p>
+        <h3 class="inst-title">A potential discussion aid for agricultural courses.</h3>
+        <p class="inst-body">A future version could support discussion in agricultural economics, agronomy, and farm management courses. There is no course integration or season-report feature today.</p>
+        <p class="inst-note">No institutional service or licensing is currently available.</p>
+      </div>
+      <div class="card inst-card reveal reveal-delay-1">
+        <p class="inst-tag">NGOs &amp; Training Programs</p>
+        <h3 class="inst-title">A possible future training resource.</h3>
+        <p class="inst-body">The concept is intended to explore farm decisions in a learning context. Group training, device compatibility, and program delivery have not been implemented or validated.</p>
+        <p class="inst-note">No pilot program is currently available.</p>
+      </div>
+      <div class="card inst-card reveal reveal-delay-2">
+        <p class="inst-tag">Microfinance Institutions</p>
+        <h3 class="inst-title">A concept for discussing farm economics.</h3>
+        <p class="inst-body">Any use in agricultural lending would require a verified production model and separate evidence of training outcomes. No lending deployment or impact has been evaluated.</p>
+        <p class="inst-note">No licensing or usage analytics are available.</p>
+      </div>
+    </div>
+
+    <div class="inst-cta-block reveal" style="margin-top:48px">
+      <button class="btn btn-outline" data-open-modal aria-haspopup="dialog" aria-controls="modal">
+        View Institutional Inquiry Form
+      </button>
+      <p class="inst-cta-note">The form only validates entries in your browser; it does not send or store a request.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- FINAL CTA -->
+<section id="final" class="section sec-final" tabindex="-1" aria-labelledby="final-h2">
+  <div class="final-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="final-inner reveal">
+      <p class="final-tagline">A concept for a Boro rice decision practice tool.</p>
+      <h2 id="final-h2" class="final-h2">Explore the planned farming decisions.</h2>
+      <div class="early-access" aria-labelledby="early-access-title">
+        <h3 id="early-access-title">Get early access</h3>
+        <p class="early-access-copy">Join the early-access list for updates as the project develops.</p>
+        <form id="early-access-form" aria-describedby="early-access-privacy early-access-status">
+          <label for="early-access-email">Email address</label>
+          <div class="early-access-controls">
+            <input
+              id="early-access-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              maxlength="254"
+              placeholder="you@example.com"
+              required
+            >
+            <button id="early-access-submit" type="submit" class="btn btn-gold">Get early access</button>
+          </div>
+          <div class="early-access-honeypot" aria-hidden="true">
+            <label for="early-access-website">Leave this field empty</label>
+            <input id="early-access-website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+        </form>
+        <p id="early-access-status" class="early-access-status" role="status" aria-live="polite"></p>
+        <p id="early-access-error" class="early-access-error" role="alert" aria-live="assertive" hidden></p>
+        <p id="early-access-privacy" class="early-access-privacy">Your email is stored only to manage this early-access list. No subscriber list is public.</p>
+      </div>
+      <div class="final-cta-group">
+        <a href="#simulator" class="btn btn-gold final-cta-btn" aria-label="Explore the simulator interface concept">
+          Explore the Interface Concept
+        </a>
+        <p class="final-meta">
+          <span>Static preview only</span>
+          <span class="sep">&nbsp;·&nbsp;</span>
+          <span>No production simulation</span>
+          <span class="sep">&nbsp;·&nbsp;</span>
+          <span>Language support not yet available</span>
+        </p>
+        <p class="final-inst">
+          Running a training program?
+          <a href="#institutions">View institutional concept →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer id="footer" aria-label="Site footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <p class="footer-logo">Virtual Farm</p>
+        <div class="footer-taglines">
+          <p>Boro Rice Simulator Concept</p>
+          <p>Built in Bangladesh. Built for Bangladesh.</p>
+        </div>
+      </div>
+      <div>
+        <p class="footer-data-head">Potential Data Sources</p>
+        <div class="footer-chips">
+          <span class="footer-chip">BRRI</span>
+          <span class="footer-chip">BBS</span>
+          <span class="footer-chip">FPMU</span>
+          <span class="footer-chip">BWDB</span>
+          <span class="footer-chip">DAE</span>
+        </div>
+      </div>
+      <div class="footer-founders">
+        <div>
+          <p class="founder-name">All Asmaul Husnain</p>
+          <p class="founder-role">CEO &amp; Co-Founder</p>
+        </div>
+        <div>
+          <p class="founder-name">Messbaul Islam Priyo</p>
+          <p class="founder-role">Founder</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-rule">
+      <p class="footer-copy">© 2026 Virtual Farm / Solyn &nbsp;·&nbsp; Bangladesh</p>
+    </div>
+  </div>
+</footer>
+
+
+<!-- STICKY MOBILE CTA -->
+<div id="sticky" aria-hidden="true" role="complementary">
+  <a href="#simulator" class="btn btn-gold btn-full" tabindex="-1" aria-label="Explore the simulator interface concept">
+    Explore the Interface Concept
+  </a>
+</div>
+
+
+<!-- MODAL -->
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-h" aria-describedby="modal-desc">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    <p class="modal-tag">Institutional Inquiry</p>
+    <h2 id="modal-h" class="modal-h">Preview the inquiry form.</h2>
+    <p id="modal-desc" class="modal-desc">Submission integration is pending. This form validates details locally but does not send or store them.</p>
+
+    <form id="inst-form" novalidate>
+      <div class="field">
+        <label for="f-name">Your Name</label>
+        <input type="text" id="f-name" placeholder="Full name" autocomplete="name" aria-describedby="err-name" required>
+        <span class="field-err" id="err-name">Enter your name.</span>
+      </div>
+      <div class="field">
+        <label for="f-org">Institution</label>
+        <input type="text" id="f-org" placeholder="University, NGO, or organization" autocomplete="organization" aria-describedby="err-org" required>
+        <span class="field-err" id="err-org">Enter your institution.</span>
+      </div>
+      <div class="field">
+        <label for="f-email">Email</label>
+        <input type="email" id="f-email" placeholder="your@institution.edu" autocomplete="email" aria-describedby="err-email" required>
+        <span class="field-err" id="err-email">Enter a valid email address.</span>
+      </div>
+      <button type="submit" id="form-submit" class="btn btn-gold btn-full">
+        Validate Details
+      </button>
+    </form>
+
+    <div class="form-pending" id="form-pending" role="status" aria-live="polite" tabindex="-1">
+      <p class="form-pending-title">Integration pending.</p>
+      <p class="form-pending-copy">Your details passed validation, but no request was sent.</p>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  'use strict';
+
+  /* ── nav solid on scroll ── */
+  var nav = document.getElementById('nav');
+  function onScroll(){
+    nav.classList.toggle('solid', window.scrollY > 40);
+    checkSticky();
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+
+  /* ── sticky mobile CTA ── */
+  var sticky = document.getElementById('sticky');
+  var stickyBtn = sticky.querySelector('a');
+  var heroSec = document.getElementById('hero');
+  var finalSec = document.getElementById('final');
+  function checkSticky(){
+    if(!heroSec||!finalSec) return;
+    var hb = heroSec.getBoundingClientRect().bottom;
+    var ft = finalSec.getBoundingClientRect().top;
+    var wh = window.innerHeight;
+    var show = hb < 0 && ft > wh;
+    sticky.classList.toggle('show', show);
+    sticky.setAttribute('aria-hidden', String(!show));
+    stickyBtn.setAttribute('tabindex', show ? '0' : '-1');
+  }
+
+  /* ── intersection reveal ── */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.09,rootMargin:'0px 0px -32px 0px'});
+
+  document.querySelectorAll('.reveal').forEach(function(el){
+    io.observe(el);
+  });
+
+  /* ── smooth anchor scroll ── */
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var id = this.getAttribute('href').slice(1);
+      var t = document.getElementById(id);
+      if(t){
+        e.preventDefault();
+        t.focus({preventScroll:true});
+        t.scrollIntoView({
+          behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+        });
+      }
+    });
+  });
+
+  /* ── modal: open/close + focus trap + return focus ── */
+  var modal = document.getElementById('modal');
+  var modalBox = modal.querySelector('.modal-box');
+  var lastTrigger = null;
+
+  function focusableInModal(){
+    return Array.prototype.slice.call(
+      modalBox.querySelectorAll('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])')
+    ).filter(function(el){ return el.offsetParent !== null; });
+  }
+
+  function trapKeydown(e){
+    if(e.key === 'Escape'){ window.closeModal(); return; }
+    if(e.key !== 'Tab') return;
+    var items = focusableInModal();
+    if(!items.length) return;
+    var first = items[0], last = items[items.length-1];
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault(); last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault(); first.focus();
+    }
+  }
+
+  window.openModal = function(triggerEl){
+    lastTrigger = triggerEl || document.activeElement;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', trapKeydown);
+    var items = focusableInModal();
+    (items[0] || modalBox).focus();
+  };
+
+  window.closeModal = function(){
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', trapKeydown);
+    resetForm();
+    if(lastTrigger && typeof lastTrigger.focus === 'function') lastTrigger.focus();
+  };
+
+  modal.addEventListener('click', function(e){
+    if(e.target === modal) window.closeModal();
+  });
+
+  /* ── form: validation + submit lifecycle ── */
+  var form      = document.getElementById('inst-form');
+  var pending   = document.getElementById('form-pending');
+
+  var fields = {
+    name:  { input: document.getElementById('f-name'),  err: document.getElementById('err-name')  },
+    org:   { input: document.getElementById('f-org'),   err: document.getElementById('err-org')   },
+    email: { input: document.getElementById('f-email'), err: document.getElementById('err-email') }
+  };
+
+  var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setFieldError(f, show){
+    f.input.classList.toggle('error', show);
+    f.err.classList.toggle('show', show);
+    f.input.setAttribute('aria-invalid', String(show));
+  }
+
+  function validateField(key){
+    var f = fields[key];
+    var val = f.input.value.trim();
+    var valid = key === 'email' ? emailRe.test(val) : val.length > 0;
+    setFieldError(f, !valid);
+    return valid;
+  }
+
+  Object.keys(fields).forEach(function(key){
+    fields[key].input.addEventListener('blur', function(){ validateField(key); });
+    fields[key].input.addEventListener('input', function(){
+      if(fields[key].input.classList.contains('error')) validateField(key);
+    });
+  });
+
+  function resetForm(){
+    form.style.display = '';
+    pending.classList.remove('show');
+    Object.keys(fields).forEach(function(key){
+      var f = fields[key];
+      f.input.value = '';
+      setFieldError(f, false);
+    });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var validKeys = Object.keys(fields).map(validateField);
+    var allValid = validKeys.every(Boolean);
+    if(!allValid){
+      var firstInvalid = Object.keys(fields).find(function(key){
+        return fields[key].input.classList.contains('error');
+      });
+      if(firstInvalid) fields[firstInvalid].input.focus();
+      return;
+    }
+
+    pending.classList.add('show');
+    pending.focus();
+  });
+
+  var earlyAccessForm = document.getElementById('early-access-form');
+  var earlyAccessEmail = document.getElementById('early-access-email');
+  var earlyAccessHoneypot = document.getElementById('early-access-website');
+  var earlyAccessSubmit = document.getElementById('early-access-submit');
+  var earlyAccessStatus = document.getElementById('early-access-status');
+  var earlyAccessError = document.getElementById('early-access-error');
+
+  earlyAccessForm.addEventListener('submit', async function(event){
+    event.preventDefault();
+    if(earlyAccessForm.getAttribute('aria-busy') === 'true') return;
+
+    earlyAccessError.textContent = '';
+    earlyAccessError.hidden = true;
+    earlyAccessStatus.textContent = 'Submitting your signup…';
+    earlyAccessForm.setAttribute('aria-busy', 'true');
+    earlyAccessEmail.disabled = true;
+    earlyAccessSubmit.disabled = true;
+    earlyAccessSubmit.textContent = 'Submitting…';
+
+    try{
+      var response = await fetch('/early-access', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'Accept':'application/json'},
+        body: JSON.stringify({
+          email: earlyAccessEmail.value,
+          website: earlyAccessHoneypot.value
+        })
+      });
+      var payload;
+      try{
+        payload = await response.json();
+      } catch(parseError){
+        throw new Error('The signup service returned an unreadable response.');
+      }
+
+      if(response.status === 201 && payload.status === 'subscribed'){
+        earlyAccessStatus.textContent = payload.message;
+        earlyAccessEmail.value = '';
+      } else {
+        earlyAccessStatus.textContent = '';
+        earlyAccessError.textContent = response.status === 409
+          ? 'This email is already on the early-access list.'
+          : response.status === 400
+            ? (payload.message || 'Enter a valid email address.')
+            : response.status === 413
+              ? 'The signup request was too large.'
+                : response.status === 429
+                  ? 'Too many attempts. Please wait briefly before trying again.'
+                : 'Signup is temporarily unavailable. Please try again later.';
+        earlyAccessError.hidden = false;
+      }
+    } catch(error){
+      earlyAccessStatus.textContent = '';
+      earlyAccessError.textContent =
+        error.message === 'The signup service returned an unreadable response.'
+          ? error.message
+          : 'Could not contact the signup service. Please try again later.';
+      earlyAccessError.hidden = false;
+    } finally{
+      earlyAccessForm.removeAttribute('aria-busy');
+      earlyAccessEmail.disabled = false;
+      earlyAccessSubmit.disabled = false;
+      earlyAccessSubmit.textContent = 'Get early access';
+    }
+  });
+
+  /* ── six-decision simulator: same-origin Flask API ── */
+  var simulationForm = document.getElementById('simulation-form');
+  var simulationSubmit = document.getElementById('simulation-submit');
+  var simulationStatus = document.getElementById('simulation-status');
+  var simulationError = document.getElementById('simulation-error');
+  var simulationResult = document.getElementById('simulation-result');
+  var simulationResultTitle = document.getElementById('simulation-result-title');
+  var lastSubmittedDecisions = null;
+
+  function clearSimulationError(){
+    simulationError.replaceChildren();
+    simulationError.hidden = true;
+  }
+
+  function clearSimulationResult(){
+    simulationResult.hidden = true;
+    document.getElementById('simulation-result-copy').textContent = '';
+    [
+      'result-gross-yield',
+      'result-saleable-yield',
+      'result-total-costs',
+      'result-gross-revenue',
+      'result-net-profit',
+      'result-market-price'
+    ].forEach(function(id){
+      document.getElementById(id).textContent = '';
+    });
+    document.getElementById('result-diagnostic-list').replaceChildren();
+  }
+
+  function showSimulationError(title, message, missingInputs){
+    simulationError.replaceChildren();
+    var heading = document.createElement('p');
+    heading.textContent = title;
+    simulationError.appendChild(heading);
+    if(message){
+      var detail = document.createElement('p');
+      detail.textContent = message;
+      simulationError.appendChild(detail);
+    }
+    if(Array.isArray(missingInputs) && missingInputs.length){
+      var list = document.createElement('ul');
+      missingInputs.forEach(function(input){
+        if(typeof input !== 'string') return;
+        var item = document.createElement('li');
+        item.textContent = input;
+        list.appendChild(item);
+      });
+      if(list.children.length) simulationError.appendChild(list);
+    }
+    simulationError.hidden = false;
+    simulationError.focus();
+  }
+
+  function isFiniteNumber(value){
+    return typeof value === 'number' && Number.isFinite(value);
+  }
+
+  function formatNumber(value, maximumFractionDigits){
+    return new Intl.NumberFormat('en-BD', {
+      maximumFractionDigits: maximumFractionDigits
+    }).format(value);
+  }
+
+  function formatMoney(value){
+    return 'BDT ' + formatNumber(value, 2);
+  }
+
+  function appendDiagnostic(text){
+    var item = document.createElement('li');
+    item.textContent = text;
+    document.getElementById('result-diagnostic-list').appendChild(item);
+  }
+
+  function renderSimulationResult(result){
+    var requiredNumbers = [
+      'gross_yield_tonnes',
+      'saleable_yield_tonnes',
+      'total_costs_bdt',
+      'gross_revenue_bdt',
+      'net_profit_bdt',
+      'market_price_bdt_per_40kg'
+    ];
+    var requiredCostKeys = ['seed', 'fertilizer', 'labor', 'irrigation'];
+    var complete = typeof result.model_version === 'string' &&
+      result.model_version.length > 0 &&
+      typeof result.data_version === 'string' &&
+      result.data_version.length > 0 &&
+      (result.seed === null ||
+        (typeof result.seed === 'number' && Number.isInteger(result.seed) && result.seed >= 0)) &&
+      (result.outcome === 'profit' || result.outcome === 'loss') &&
+      result.events && typeof result.events.weather === 'string' &&
+      typeof result.events.storage_spoiled === 'boolean' &&
+      result.diagnostic && result.diagnostic.yield &&
+      typeof result.diagnostic.yield.formula === 'string' &&
+      result.diagnostic.revenue && result.diagnostic.profit &&
+      typeof result.diagnostic.revenue.formula === 'string' &&
+      typeof result.diagnostic.profit.formula === 'string' &&
+      result.cost_breakdown_bdt &&
+      typeof result.cost_breakdown_bdt === 'object' &&
+      !Array.isArray(result.cost_breakdown_bdt) &&
+      Object.keys(result.cost_breakdown_bdt).every(function(key){
+        return isFiniteNumber(result.cost_breakdown_bdt[key]);
+      }) &&
+      requiredCostKeys.every(function(key){
+        return isFiniteNumber(result.cost_breakdown_bdt[key]);
+      }) &&
+      requiredNumbers.every(function(key){ return isFiniteNumber(result[key]); });
+    if(!complete) throw new Error('The simulation service returned an incomplete result.');
+
+    simulationResultTitle.textContent =
+      result.outcome === 'profit' ? 'Season result: profit' : 'Season result: loss';
+    document.getElementById('simulation-result-copy').textContent =
+      'Model ' + result.model_version + ' · Data ' + result.data_version +
+      (result.seed === null ? '' : ' · Seed ' + result.seed);
+    document.getElementById('result-gross-yield').textContent =
+      formatNumber(result.gross_yield_tonnes, 4) + ' tonnes';
+    document.getElementById('result-saleable-yield').textContent =
+      formatNumber(result.saleable_yield_tonnes, 4) + ' tonnes';
+    document.getElementById('result-total-costs').textContent =
+      formatMoney(result.total_costs_bdt);
+    document.getElementById('result-gross-revenue').textContent =
+      formatMoney(result.gross_revenue_bdt);
+    document.getElementById('result-net-profit').textContent =
+      formatMoney(result.net_profit_bdt);
+    document.getElementById('result-market-price').textContent =
+      formatMoney(result.market_price_bdt_per_40kg) + ' / 40 kg';
+
+    var diagnosticList = document.getElementById('result-diagnostic-list');
+    diagnosticList.replaceChildren();
+    appendDiagnostic('Weather scenario: ' + result.events.weather + '.');
+    appendDiagnostic('Storage spoilage event: ' +
+      (result.events.storage_spoiled ? 'occurred' : 'did not occur') + '.');
+    appendDiagnostic('Yield: ' + result.diagnostic.yield.formula);
+    appendDiagnostic('Revenue: ' + result.diagnostic.revenue.formula);
+    appendDiagnostic('Net result: ' + result.diagnostic.profit.formula);
+    if(result.cost_breakdown_bdt && typeof result.cost_breakdown_bdt === 'object'){
+      Object.keys(result.cost_breakdown_bdt).sort().forEach(function(key){
+        var value = result.cost_breakdown_bdt[key];
+        if(isFiniteNumber(value)){
+          appendDiagnostic(key.replace(/_/g, ' ') + ' cost: ' + formatMoney(value) + '.');
+        }
+      });
+    }
+    if(typeof result.diagnostic.causal_claims === 'string'){
+      appendDiagnostic(result.diagnostic.causal_claims);
+    }
+    simulationResult.hidden = false;
+    simulationStatus.textContent = 'Simulation completed using the returned model and data versions.';
+    simulationResultTitle.focus();
+  }
+
+  simulationForm.addEventListener('submit', async function(event){
+    event.preventDefault();
+    if(simulationForm.getAttribute('aria-busy') === 'true') return;
+    clearSimulationError();
+    clearSimulationResult();
+    var formData = new FormData(simulationForm);
+    var decisions = {
+      farm_size_bigha: Number(formData.get('farm_size_bigha')),
+      seed_quality: formData.get('seed_quality'),
+      fertilizer_type: formData.get('fertilizer_type'),
+      labor_choice: formData.get('labor_choice'),
+      irrigation_choice: formData.get('irrigation_choice'),
+      sell_or_store: formData.get('sell_or_store')
+    };
+    lastSubmittedDecisions = {
+      farm_size_bigha: decisions.farm_size_bigha,
+      seed_quality: decisions.seed_quality,
+      fertilizer_type: decisions.fertilizer_type,
+      labor_choice: decisions.labor_choice,
+      irrigation_choice: decisions.irrigation_choice,
+      sell_or_store: decisions.sell_or_store
+    };
+
+    Array.prototype.forEach.call(simulationForm.elements, function(control){
+      control.disabled = true;
+    });
+    simulationForm.setAttribute('aria-busy', 'true');
+    simulationStatus.textContent = 'Sending all six decisions to the simulation service…';
+    simulationSubmit.textContent = 'Running…';
+
+    try{
+      var response = await fetch('/simulate', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'Accept':'application/json'},
+        body: JSON.stringify({decisions:decisions})
+      });
+      var payload;
+      try{
+        payload = await response.json();
+      } catch(parseError){
+        showSimulationError(
+          'The simulation service returned an unreadable response.',
+          'No result was received. Please try again later.',
+          []
+        );
+        simulationStatus.textContent = 'No usable simulation response was received.';
+        return;
+      }
+
+      if(response.status === 400){
+        showSimulationError('Check the decisions and try again.', payload.message, []);
+        simulationStatus.textContent = 'The simulation service rejected the request.';
+      } else if(response.status === 503){
+        showSimulationError(
+          'Production simulation is unavailable.',
+          payload.message,
+          payload.missing_inputs
+        );
+        simulationStatus.textContent =
+          'The decisions were submitted, but required production data is unavailable.';
+      } else if(!response.ok){
+        showSimulationError(
+          'The simulation could not be completed.',
+          payload.message || 'The service returned an unexpected error.',
+          []
+        );
+        simulationStatus.textContent = 'The simulation service returned an error.';
+      } else {
+        try{
+          renderSimulationResult(payload);
+        } catch(resultError){
+          showSimulationError(
+            'The simulation service returned an incomplete result.',
+            'No result was displayed. Please try again later.',
+            []
+          );
+          simulationStatus.textContent = 'The simulation response could not be displayed.';
+        }
+      }
+    } catch(error){
+      showSimulationError(
+        'Could not contact the simulation service.',
+        'Open this page from the Virtual Farm Flask server and try again.',
+        []
+      );
+      simulationStatus.textContent = 'No simulation result was received.';
+    } finally{
+      Array.prototype.forEach.call(simulationForm.elements, function(control){
+        control.disabled = false;
+      });
+      simulationForm.removeAttribute('aria-busy');
+      simulationSubmit.textContent = 'Run simulation';
+    }
+  });
+
+  simulationForm.addEventListener('reset', function(){
+    window.setTimeout(function(){
+      lastSubmittedDecisions = null;
+      clearSimulationError();
+      clearSimulationResult();
+      simulationStatus.textContent =
+        'Decisions reset. Choose all six decisions, then submit them to the Flask simulation API.';
+      simulationForm.removeAttribute('aria-busy');
+      Array.prototype.forEach.call(simulationForm.elements, function(control){
+        control.disabled = false;
+      });
+      simulationSubmit.textContent = 'Run simulation';
+    }, 0);
+  });
+
+  document.getElementById('simulation-replay').addEventListener('click', function(){
+    if(lastSubmittedDecisions){
+      Object.keys(lastSubmittedDecisions).forEach(function(name){
+        simulationForm.elements.namedItem(name).value =
+          String(lastSubmittedDecisions[name]);
+      });
+    }
+    clearSimulationResult();
+    clearSimulationError();
+    simulationStatus.textContent =
+      'Your choices are unchanged. Submit again to replay with the current model configuration.';
+    document.getElementById('sim-farm-size').focus();
+  });
+
+  document.getElementById('simulation-result-reset').addEventListener('click', function(){
+    simulationForm.reset();
+    document.getElementById('sim-farm-size').focus();
+  });
+
+  /* ── wire institutional-access triggers to pass the clicked element ── */
+  document.querySelectorAll('[data-open-modal]').forEach(function(btn){
+    btn.addEventListener('click', function(){ window.openModal(this); });
+  });
+
+  /* ── run initial scroll check ── */
+  onScroll();
+
+})();
+</script>
+
+</body>
+</html>

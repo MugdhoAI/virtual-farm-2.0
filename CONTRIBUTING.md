@@ -20,15 +20,32 @@ Check existing issues and pull requests before starting work.
 
 ## Development setup
 
-Use a supported Python version and follow the installation instructions in the README.
+Use Python 3 and follow any additional setup requirements documented in the README.
 
-From the project root, activate your virtual environment, install the project requirements, and run:
+From the project root, create and activate a virtual environment.
+
+On Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+On macOS or Linux:
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Install the project requirements and run the tests:
+
+```bash
+python -m pip install -r requirements.txt
 python -m pytest
 ```
 
-If a change affects the frontend, also test the page at mobile and desktop widths and check browser console errors. Update the README if setup steps, API behavior, or project status changes.
+If a change affects the frontend, test the page at mobile and desktop widths and check browser console errors. Update the README if setup steps, API behavior, or project status changes.
 
 ## Simulation data and result integrity
 

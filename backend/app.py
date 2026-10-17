@@ -34,6 +34,30 @@ def health():
     return jsonify({"status": "ok", "service": "virtual-farm-simulation"})
 
 
+@app.get("/ready")
+def readiness():
+    from simulation.config import PARAMETERS
+    from simulation.validation import validate_parameters
+
+    try:
+        validate_parameters(PARAMETERS)
+    except ModelDataError as exc:
+        response = {
+            "status": "not_ready",
+            "service": "virtual-farm-simulation",
+            "error": "simulation_model_not_ready",
+            "message": str(exc),
+        }
+        if exc.missing_inputs:
+            response["missing_inputs"] = list(exc.missing_inputs)
+        return jsonify(response), 503
+
+    return jsonify({
+        "status": "ready",
+        "service": "virtual-farm-simulation",
+    })
+
+
 @app.errorhandler(RequestEntityTooLarge)
 def request_too_large(exc):
     return jsonify({

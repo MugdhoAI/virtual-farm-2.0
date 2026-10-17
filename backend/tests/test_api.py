@@ -34,6 +34,31 @@ def test_health():
     assert response.json["status"] == "ok"
 
 
+def test_readiness_reports_incomplete_production_model():
+    response = app.test_client().get("/ready")
+
+    assert response.status_code == 503
+    assert response.json["status"] == "not_ready"
+    assert response.json["error"] == "simulation_model_not_ready"
+    assert "missing_inputs" in response.json
+    assert "cost.six_decision_cost_mapping" in response.json["missing_inputs"]
+
+
+def test_readiness_reports_ready_for_valid_test_model(
+    complete_test_parameters, monkeypatch
+):
+    from simulation import config
+
+    monkeypatch.setattr(config, "PARAMETERS", complete_test_parameters)
+    response = app.test_client().get("/ready")
+
+    assert response.status_code == 200
+    assert response.json == {
+        "status": "ready",
+        "service": "virtual-farm-simulation",
+    }
+
+
 def test_root_serves_the_connected_six_decision_form():
     response = app.test_client().get("/")
     html = response.get_data(as_text=True)

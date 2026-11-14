@@ -13,12 +13,15 @@ def calculate_cost_breakdown(
     if farm_size_bigha <= 0:
         raise ValueError("farm_size_bigha must be greater than zero")
 
-    choices = {
-        "seed": parameters.seed_choices[seed_quality],
-        "fertilizer": parameters.fertilizer_choices[fertilizer_type],
-        "labor": parameters.labor_choices[labor_choice],
-        "irrigation": parameters.irrigation_choices[irrigation_choice],
-    }
+    try:
+        choices = {
+            "seed": parameters.seed_choices[seed_quality],
+            "fertilizer": parameters.fertilizer_choices[fertilizer_type],
+            "labor": parameters.labor_choices[labor_choice],
+            "irrigation": parameters.irrigation_choices[irrigation_choice],
+        }
+    except KeyError as exc:
+        raise ValueError(f"Unknown simulation choice: {exc.args[0]}") from exc
     breakdown = {}
     for name, choice in choices.items():
         if choice.cost_bdt_per_bigha is None:

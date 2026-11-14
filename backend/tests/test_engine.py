@@ -240,3 +240,17 @@ def test_extreme_finite_farm_size_is_rejected_by_decision_validation(
 def test_invalid_seed_is_rejected(seed, complete_test_parameters):
     with pytest.raises(DecisionValidationError, match="seed"):
         run_full_simulation(DECISIONS, seed=seed, parameters=complete_test_parameters)
+
+
+@pytest.mark.parametrize("seed", [0, (1 << 64) - 1])
+def test_boundary_seeds_are_accepted(seed, complete_test_parameters):
+    result = run_full_simulation(DECISIONS, seed=seed, parameters=complete_test_parameters)
+
+    assert result["seed"] == seed
+
+
+def test_omitted_seed_returns_none_and_still_runs(complete_test_parameters):
+    result = run_full_simulation(DECISIONS, parameters=complete_test_parameters)
+
+    assert result["seed"] is None
+    assert result["gross_yield_tonnes"] > 0

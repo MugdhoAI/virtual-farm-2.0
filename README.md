@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/virtual-farm-hero.jpg" alt="Virtual Farm: one bad farming decision can cost a season's income" width="100%">
+</p>
+
 # Virtual Farm 2.0
 
 Virtual Farm 2.0 is an evolving agricultural decision support project. It is being built to help users explore farm management choices through a structured software workflow, with an emphasis on validating inputs and producing results only when the required model data is available.

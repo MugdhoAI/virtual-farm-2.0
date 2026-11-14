@@ -3,6 +3,7 @@ import json
 import pytest
 
 from simulation.config import MODEL_DATA_PATH, PARAMETERS, load_parameters
+from simulation.cost_model import calculate_cost_breakdown
 from simulation.engine import run_full_simulation
 from simulation.validation import (
     DecisionValidationError,
@@ -254,3 +255,25 @@ def test_omitted_seed_returns_none_and_still_runs(complete_test_parameters):
 
     assert result["seed"] is None
     assert result["gross_yield_tonnes"] > 0
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"seed_quality": "unknown"},
+        {"fertilizer_type": "unknown"},
+        {"labor_choice": "unknown"},
+        {"irrigation_choice": "unknown"},
+    ],
+)
+def test_cost_breakdown_rejects_unknown_choice(overrides, complete_test_parameters):
+    choices = {
+        "seed_quality": DECISIONS["seed_quality"],
+        "fertilizer_type": DECISIONS["fertilizer_type"],
+        "labor_choice": DECISIONS["labor_choice"],
+        "irrigation_choice": DECISIONS["irrigation_choice"],
+    }
+    choices.update(overrides)
+
+    with pytest.raises(ValueError, match="Unknown simulation choice"):
+        calculate_cost_breakdown(1, **choices, parameters=complete_test_parameters)

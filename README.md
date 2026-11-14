@@ -8,6 +8,12 @@ Virtual Farm 2.0 is an evolving agricultural decision support project. It is bei
 
 The project is currently in active development. The focus is on making the application reliable, testable, and grounded in usable agricultural data before public deployment.
 
+## Versions
+
+**Version 1.0** is the original prototype, live at [virtualfarm.netlify.app](https://virtualfarm.netlify.app). It is also marked on GitHub as the [v1.0.0 pre-release](https://github.com/MugdhoAI/virtual-farm-2.0/releases/tag/v1.0.0).
+
+**Version 2.0** is the rebuild in this repository. It is in active development and has not been deployed yet.
+
 ## The problem
 
 Farm planning involves connected decisions about land, seed quality, fertilizer, labor, irrigation, and whether to sell or store a harvest. A decision tool can help organize these choices, but its output is only useful when the underlying assumptions and data are credible.

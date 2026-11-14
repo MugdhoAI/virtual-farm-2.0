@@ -109,6 +109,26 @@ def test_invalid_decision_choice_and_unexpected_field_are_rejected():
         validate_decisions(dict(DECISIONS, extra=True))
 
 
+@pytest.mark.parametrize("decisions", [None, [], "decisions", 42])
+def test_non_object_decisions_are_rejected(decisions):
+    with pytest.raises(DecisionValidationError, match="decisions must be an object"):
+        validate_decisions(decisions)
+
+
+def test_non_string_decision_name_is_rejected():
+    decisions = dict(DECISIONS)
+    decisions[1] = "extra"
+
+    with pytest.raises(DecisionValidationError, match="decision names must be strings"):
+        validate_decisions(decisions)
+
+
+@pytest.mark.parametrize("value", [None, 1, True, ["local"]])
+def test_non_string_decision_choice_is_rejected(value):
+    with pytest.raises(DecisionValidationError, match="seed_quality"):
+        validate_decisions(dict(DECISIONS, seed_quality=value))
+
+
 def test_complete_test_fixture_runs_with_structured_diagnostics(complete_test_parameters):
     result = run_full_simulation(
         DECISIONS, seed=4, parameters=complete_test_parameters
